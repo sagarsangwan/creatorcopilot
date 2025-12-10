@@ -14,17 +14,25 @@ services:
       - ./gateway/.env
     volumes:
       - ./gateway:/app
-  frontend:
-    build: 
-      context: ./frontend
+  auth-service:
+    build:
+      context: ./services/auth-service
       dockerfile: Dockerfile
+    
     ports:
-      - "3000:3000"
-    depends_on:
-      - gateway
+      - "8001:8001" # Host port:Container port
+    # Crucial for development: Sync local code and ignore cache
     volumes:
-      - ./frontend:/app      # Mounts your host code to the container's /app
-      - /app/node_modules    # Tells Docker to IGNORE the host's node_modules and use the container's      
+      - ./services/auth-service:/app # Maps your local code into the container
+      - /app/__pycache__    # Prevents local filesystem corruption from container cache
+    networks:
+      - microservice-network
+        
+  
 
 
+networks:
+  microservice-network:
+    driver: bridge # This creates the shared network for inter-service communication
 
+# If you want to use volumes later for a DB, also add a volumes block here

@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
+import { SignIn } from "../auth/signin-button";
 
 export function Hero() {
   return (
@@ -27,10 +28,7 @@ export function Hero() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button className="bg-[#4C6FFF] hover:bg-[#3B5CE9] text-white text-sm font-medium px-6 h-11 rounded-lg w-full sm:w-auto">
-              Start Publishing
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
+            <SignIn />
             <Button
               variant="outline"
               className="border-[#E5E5E5] text-[#1A1A1A] hover:bg-[#F5F5F5] text-sm font-medium px-6 h-11 rounded-lg w-full sm:w-auto bg-transparent"

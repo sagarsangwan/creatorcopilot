@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+frontend:
+  build: 
+    context: ./frontend
+    dockerfile: Dockerfile
+  ports:
+    - "3000:3000"
+  depends_on:
+    - gateway
+  environment:
+    - CHOKIDAR_USEPOLLING=true
+  volumes:
+    - ./frontend:/app      # Mounts your host code to the container's /app
+    - /app/node_modules    # Tells Docker to IGNORE the host's node_modules and use the container's      
