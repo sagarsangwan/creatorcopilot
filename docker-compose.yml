@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+
+  #django i am using as gateway
+  
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    ports:
+    - "8000:8000"
+    env_file:
+      - ./gateway/.env
+    volumes:
+      - ./gateway:/app
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - gateway
+    volumes:
+      - ./frontend:/app      # Mounts your host code to the container's /app
+      - /app/node_modules    # Tells Docker to IGNORE the host's node_modules and use the container's      
+
+
+
