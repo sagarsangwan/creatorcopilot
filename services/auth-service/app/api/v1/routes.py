@@ -26,18 +26,19 @@ logger = logging.getLogger(__name__)
 
 
 def get_or_create_user(
-    name: str,
     email: str,
     first_name: str | None,
     last_name: str | None,
     image_url: str | None,
     db: Session,
 ) -> DBUser:
-    dbuser = db.query(DBUser).filter(email == email).first()
+    dbuser = db.query(DBUser).filter(DBUser.email == email).first()
 
     if dbuser:
+        print("alreadyy hau ")
         return dbuser
     else:
+        print("alreadyy nhii hai ")
         new_user = DBUser(
             email=email, first_name=first_name, last_name=last_name, image=image_url
         )
@@ -50,6 +51,7 @@ def get_or_create_user(
 @router.post("/auth/google/", response_model=TokenResponse)
 async def google_login(request: GoogleLoginRequest, db: Session = Depends(get_db)):
     try:
+        print("insidegoogle login")
         google_payload = decode_google_id_token_secure(request.token)
         email = google_payload.get("email")
         first_name = google_payload.get("first_name")
@@ -69,14 +71,18 @@ async def google_login(request: GoogleLoginRequest, db: Session = Depends(get_db
             image_url=picture,
             db=db,
         )
+        print(dbuser.id, dbuser.email)
         token_data = {"user_id": dbuser.id, "email": dbuser.email}
+        print(token_data)
         access_token = create_access_token(token_data)
+        print(access_token)
         refresh_token = create_refresh_token(token_data)
-
+        display_name = full_name or f"{dbuser.first_name} {dbuser.last_name}"
+        print(access_token, refresh_token, display_name)
         user_response = UserResponse(
             id=dbuser.id,
-            first_name=dbuser.first_name,
-            last_name=dbuser.last_name,
+            email=dbuser.email,
+            name=display_name,
             picture=dbuser.image,
         )
         return TokenResponse(
@@ -88,11 +94,11 @@ async def google_login(request: GoogleLoginRequest, db: Session = Depends(get_db
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Authentication Failed: {e}",
         )
-    except Expection as e:
+    except Exception as e:
         logger.error(f"internal Server Error During Google Login:{e} ")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            details="An UnExpected Error Occur",
+            detail="An UnExpected Error Occur",
         )
 
 
@@ -107,7 +113,10 @@ async def token_refresh(request: TokenRefreshRequest):
     new_accessToken = create_access_token(token_data)
 
     dummy_userResponse = UserResponse(
-        id=payload["user_id"], email=payload["email"], name="Refreshed User"
+        id=payload["user_id"],
+        email=payload["email"],
+        name="Refreshed User",
+        picture=None,
     )
     return TokenResponse(
         user=dummy_userResponse, access=new_accessToken, refresh=request.refresh

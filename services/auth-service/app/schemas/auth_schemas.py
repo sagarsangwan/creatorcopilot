@@ -12,6 +12,9 @@ class UserResponse(BaseModel):
     email: str
     picture: str | None
 
+    class Config:
+        from_attributes = True
+
 
 class TokenResponse(BaseModel):
     user: UserResponse
