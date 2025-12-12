@@ -1,6 +1,15 @@
 version: '3.8'
 
 services:
+  db:
+    image: postgres:15-alpine # Use a stable, lightweight PostgreSQL image
+    restart: always
+    env_file:
+      - ./.env.db
+    volumes:
+    - postgres_data:/var/lib/postgresql/data/
+    networks:
+      - microservice-network
 
   #django i am using as gateway
   
@@ -14,6 +23,8 @@ services:
       - ./gateway/.env
     volumes:
       - ./gateway:/app
+    networks:
+      - microservice-network
   auth-service:
     build:
       context: ./services/auth-service
@@ -34,5 +45,5 @@ services:
 networks:
   microservice-network:
     driver: bridge # This creates the shared network for inter-service communication
-
-# If you want to use volumes later for a DB, also add a volumes block here
+volumes:
+  postgres_data:
