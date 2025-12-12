@@ -16,3 +16,11 @@ def google_login_gateway(request):
         f"{AUTH_BASE}/api/v1/auth/google", json=request.data, timeout=10
     )
     return Response(res.json(), status=res.status_code)
+
+
+@api_view(["POST"])
+def refresh_token_refresh_gateway(request):
+    res = requests.post(
+        f"{AUTH_BASE}/api/v1/auth/token/refresh", json=request.data, timeout=10
+    )
+    return Response(res.json(), status=res.status_code)

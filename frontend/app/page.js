@@ -5,8 +5,14 @@ import { Features } from "./components/landing/features";
 import { Steps } from "./components/landing/steps";
 import { Pricing } from "./components/landing/pricing";
 import { Footer } from "./components/landing/footer";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const session = await auth();
+  if (session?.user) {
+    return redirect("/dashboard");
+  }
   return (
     <div className="min-h-screen bg-white">
       <Header />
