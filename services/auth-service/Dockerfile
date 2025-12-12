@@ -18,11 +18,11 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 # Copy the rest of the application code
-COPY . /app/
+COPY app/ ./
 
 # Expose the internal port
 EXPOSE 8001
 
 # Command to run FastAPI in development mode using Uvicorn's --reload flag
 # The '--reload' flag watches the code in /app (via the volume mount) and restarts the server on changes.
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]

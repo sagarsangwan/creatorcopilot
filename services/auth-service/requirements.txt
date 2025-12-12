@@ -5,7 +5,7 @@ python-jose[cryptography] # For JWT tokens (Auth)
 httpx # For making requests to Google (OAuth)
 SQLAlchemy # Or your preferred ORM/DB tool for the Auth DB
 psycopg2-binary # PostgreSQL driver
-
+requests
 pydantic 
 dotenv
 google-auth

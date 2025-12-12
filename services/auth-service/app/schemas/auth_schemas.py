@@ -6,7 +6,7 @@ class GoogleLoginRequest(BaseModel):
     access_token: str | None = Field(None, description="Google Access Token (optional)")
 
 
-class Userresonse(BaseModel):
+class UserResponse(BaseModel):
     id: int
     name: str
     email: str
@@ -14,6 +14,10 @@ class Userresonse(BaseModel):
 
 
 class TokenResponse(BaseModel):
-    user: Userresonse
+    user: UserResponse
     access: str
+    refresh: str
+
+
+class TokenRefreshRequest(BaseModel):
     refresh: str
