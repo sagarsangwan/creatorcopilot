@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+gunicorn 
+httpx 
+SQLAlchemy 
+psycopg2-binary 
+requests
+pydantic 
+dotenv
+alembic
+cloudinary

@@ -1,1 +1,4 @@
 .env.db
+.env
+.env.auth.db
+.env.media.db
