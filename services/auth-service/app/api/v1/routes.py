@@ -1,7 +1,6 @@
-from sqlalchemy.sql.coercions import expect
 from fastapi import APIRouter, HTTPException, status, Depends
 from sqlalchemy.orm import Session
-from jose import JWTError
+
 import logging
 
 from app.core.database import get_db

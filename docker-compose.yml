@@ -7,7 +7,12 @@ services:
     env_file:
       - ./.env.auth.db
     volumes:
-    - postgres_data:/var/lib/postgresql/data/
+    - auth_postgres_data:/var/lib/postgresql/data/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U auth_service_user -d fastapi_auth_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     networks:
       - microservice-network
   
@@ -17,7 +22,12 @@ services:
     env_file:
       - ./.env.media.db
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - media_postgres_data:/var/lib/postgresql/data/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U media_service_user -d fastapi_media_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     networks:
       - microservice-network
 
@@ -40,12 +50,15 @@ services:
     build:
       context: ./services/auth-service
       dockerfile: Dockerfile
-    
+    depends_on:
+      db-auth:
+        condition: service_healthy
     ports:
       - "8001:8001" # Host port:Container port
     # Crucial for development: Sync local code and ignore cache
     volumes:
       - ./services/auth-service:/app # Maps your local code into the container
+        
     networks:
       - microservice-network
     
@@ -53,6 +66,9 @@ services:
     build:
       context: ./services/media-service
       dockerfile: Dockerfile
+    depends_on:
+      db-media:
+        condition: service_healthy
     ports:
       - "8002:8002"
     volumes:
@@ -67,4 +83,5 @@ networks:
   microservice-network:
     driver: bridge # This creates the shared network for inter-service communication
 volumes:
-  postgres_data:
+  auth_postgres_data:
+  media_postgres_data:

@@ -2,7 +2,6 @@ from datetime import datetime, timezone
 from sqlalchemy import Column, Integer, Boolean, String, DateTime
 from sqlalchemy import func
 from app.core.database import Base
-import uuid
 
 
 class DBUser(Base):
@@ -16,4 +15,3 @@ class DBUser(Base):
     created_at = Column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
-    # You can remove the 'default=datetime.now(timezone.utc)' part entirely.
