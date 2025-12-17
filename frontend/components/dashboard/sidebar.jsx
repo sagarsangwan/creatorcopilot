@@ -12,7 +12,8 @@ import {
   LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
+import { Button } from "../ui/button";
+import { signOut } from "next-auth/react";
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Upload", href: "/dashboard/upload", icon: Upload },
@@ -73,7 +74,10 @@ export function Sidebar() {
 
         {/* Logout */}
         <div className="px-3 pb-4">
-          <button className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-medium text-[#6A6A6A] transition-colors hover:bg-[#FAFAFA] hover:text-[#111111]">
+          <button
+            onClick={() => signOut()}
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-medium text-[#6A6A6A] transition-colors hover:bg-[#FAFAFA] hover:text-[#111111]"
+          >
             <LogOut className="h-5 w-5" strokeWidth={1.5} />
             Logout
           </button>

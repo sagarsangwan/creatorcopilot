@@ -1,21 +1,30 @@
 import os
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
+from django.conf import settings
 
-import jwt
+# import jwt
+from jose import jwt
+
 from .user import SimpleUser
 
+# JWT_PUBLIC_KEY = os.getenv("JWT_PUBLIC_KEY").replace("\\n", "\n")
+JWT_SECRET_KEY = settings.JWT_SECRET_KEY
 
-class JwtAuthentication(BaseAuthentication):
+print(JWT_SECRET_KEY)
+if not JWT_SECRET_KEY:
+    raise RuntimeError("JWT_SECRET_KEY not set in environment")
+
+
+class JWTAuthentication(BaseAuthentication):
     def authenticate(self, request):
-        auth = self.headers.get("Authorization")
-        JWT_PUBLIC_KEY = os.getenv("JWT_PUBLIC_KEY ")
-        if not auth or auth.startswith("Bearer "):
+        auth = request.headers.get("Authorization")
+        if not auth or not auth.startswith("Bearer "):
             return None
         token = auth.split(" ")[1]
         try:
             payload = jwt.decode(
-                token, JWT_PUBLIC_KEY, algorithms=["RS256"], audience="creatorcopilot"
+                token, JWT_SECRET_KEY, algorithms=["HS256"], audience="creatorcopilot"
             )
             print(payload)
         except jwt.ExpiredSignatureError:

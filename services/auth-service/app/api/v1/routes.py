@@ -105,8 +105,9 @@ async def google_login(request: GoogleLoginRequest, db: Session = Depends(get_db
 async def token_refresh(request: TokenRefreshRequest):
     payload = verify_refresh_token(request.refresh)
     if not payload:
+        print("payloaddddddddd nhiiiiiiiiiiiiiii")
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, details="Invalid Or Expired Token"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Or Expired Token"
         )
     token_data = {"user_id": payload["user_id"], "email": payload["email"]}
     new_accessToken = create_access_token(token_data)
