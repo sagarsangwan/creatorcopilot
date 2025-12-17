@@ -1,12 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from core.database import Base, engine
 
 origins = [
     "http://localhost:3000",
     "http://gateway:8000",
 ]
-
-
+Base.metadat.create_all(bind=engine)
 app = FastAPI(
     title="FastAPI media upload service",
     version="1.0.0",
