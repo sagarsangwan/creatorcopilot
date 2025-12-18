@@ -85,9 +85,6 @@ export function Header() {
             >
               Login
             </Link>
-            <Button className="bg-[#4C6FFF] hover:bg-[#3B5CE9] text-white text-sm font-medium w-full h-9 rounded-lg mt-2">
-              Launch App
-            </Button>
           </nav>
         </div>
       )}

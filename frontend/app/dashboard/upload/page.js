@@ -4,13 +4,28 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { UploadCard } from "@/components/dashboard/upload-card";
+import { useSession } from "next-auth/react";
 
 export default function UploadPage() {
   const router = useRouter();
-  const [selectedFile, setSelectedFile] = useState(null);
+  const { data: session, status } = useSession();
 
-  const handleContinue = () => {
-    router.push("/dashboard/editor");
+  const [selectedFile, setSelectedFile] = useState(null);
+  if (status == "loading") {
+    return <div>loadinggg</div>;
+  }
+  const initiateUpload = async () => {
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    console.log(backendUrl);
+    console.log(selectedFile);
+    const result = await fetch(`${backendUrl}/media/initiate-upload/`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${session?.access_token}`,
+      },
+    });
+    const data = await result.json();
+    console.log(data);
   };
 
   return (
@@ -36,10 +51,10 @@ export default function UploadPage() {
       {selectedFile && (
         <div className="flex justify-center">
           <button
-            onClick={handleContinue}
+            onClick={initiateUpload}
             className="flex items-center gap-2 rounded-xl bg-[#4C6FFF] px-6 py-3.5 text-[15px] font-medium text-white transition-colors hover:bg-[#3B5CE8]"
           >
-            Continue to Editor
+            Upload
             <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
           </button>
         </div>

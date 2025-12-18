@@ -26,14 +26,13 @@ class JWTAuthentication(BaseAuthentication):
             payload = jwt.decode(
                 token, JWT_SECRET_KEY, algorithms=["HS256"], audience="creatorcopilot"
             )
-            print(payload)
         except jwt.ExpiredSignatureError:
             raise AuthenticationFailed("TOKEN_EXPIRED")
         except jwt.InvalidTokenError:
             raise AuthenticationFailed("INVALID_TOKEN")
-        if "sub" not in payload:
+        if "user_id" not in payload:
             raise AuthenticationFailed("INVALID_TOKEN_PAYLOAD")
-        print(payload)
-        user = SimpleUser(id=payload["sub"], email=payload.get("email"))
+
+        user = SimpleUser(id=payload["user_id"], email=payload.get("email"))
 
         return (user, None)

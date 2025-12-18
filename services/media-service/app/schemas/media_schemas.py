@@ -3,6 +3,15 @@ from pydantic import BaseModel, HttpUrl
 from typing import Optional, Dict, Any
 
 
+class UserSchema(BaseModel):
+    id: int
+    email: str
+
+
+class MediaUploadInitiate(BaseModel):
+    user: UserSchema
+
+
 class MediaBase(BaseModel):
     user_id: str
     public_id: str
@@ -18,9 +27,9 @@ class MediaBase(BaseModel):
     visibility: str = "private"
 
 
-class MediaCreate(BaseModel):
-    raw_response: Dict[str:Any]
-    upload_Status: str = "uploaded"
+# class MediaCreate(BaseModel):
+#     raw_response: Dict[str:Any]
+#     upload_Status: str = "uploaded"
 
 
 class MediaRead(BaseModel):

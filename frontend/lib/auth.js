@@ -129,6 +129,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.error = token.error;
         session.user.name = token.name;
         session.user.picture = token.picture;
+        session.user.accessToken = token.accessToken;
       }
       return session;
     },

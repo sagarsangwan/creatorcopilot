@@ -7,6 +7,7 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL")
+MEDIA_SERVICE_URL = os.getenv("MEDIA_SERVICE_URL")
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = True

@@ -7,8 +7,6 @@ function UserAvatar() {
     return <div>loading.</div>;
   }
   const imageSource = session?.user?.picture;
-  console.log("Image Source Value:", imageSource);
-  console.log("Image Source Type:", typeof imageSource);
   return (
     <div>
       <div className="flex items-center gap-3">

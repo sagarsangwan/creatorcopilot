@@ -7,6 +7,6 @@ class SimpleUser:
         self.id = id
         self.email = email
 
-        @property
-        def is_authenticated(self):
-            return True
+    @property
+    def is_authenticated(self):
+        return True

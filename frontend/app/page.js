@@ -1,10 +1,10 @@
-import { Header } from "./components/landing/header";
-import { Hero } from "./components/landing/hero";
-import { PlaygroundDemo } from "./components/landing/playground";
-import { Features } from "./components/landing/features";
-import { Steps } from "./components/landing/steps";
-import { Pricing } from "./components/landing/pricing";
-import { Footer } from "./components/landing/footer";
+import { Header } from "../components/landing/header";
+import { Hero } from "../components/landing/hero";
+import { PlaygroundDemo } from "../components/landing/playground";
+import { Features } from "../components/landing/features";
+import { Steps } from "../components/landing/steps";
+import { Pricing } from "../components/landing/pricing";
+import { Footer } from "../components/landing/footer";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 

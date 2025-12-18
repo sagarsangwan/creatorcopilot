@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .core.database import Base, engine
+from .api.v1.routes import router
 
 origins = [
     "http://localhost:3000",
@@ -12,6 +13,8 @@ app = FastAPI(
     version="1.0.0",
     description="Handle media upload",
 )
+
+app.include_router(router, prefix="/api/v1")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
