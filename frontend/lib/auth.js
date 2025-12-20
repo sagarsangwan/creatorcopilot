@@ -35,7 +35,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         try {
           // Exchange Google ID token for Django tokens
           const response = await axios.post(
-            `${process.env.NEXTAUTH_BACKEND_URL}auth/google/`,
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/google/`,
 
             {
               token: account.id_token,

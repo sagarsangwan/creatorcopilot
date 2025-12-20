@@ -37,9 +37,9 @@ def initiate_upload(request):
         **request.data,
         "user": {"id": request.user.id, "email": request.user.email},
     }
-
-    res = requests.post(
-        f"{MEDIA_BASE}/api/v1/media/initiate-upload", json=payload, timeout=10
-    )
-    print(res.json(), flush=True)
+    print(request.data, flush=True)
+    # res = requests.post(
+    #     f"{MEDIA_BASE}/api/v1/media/initiate-upload", json=payload, timeout=10
+    # )
+    # print(res.json(), flush=True)
     return Response({"hi": "world"}, status=200)

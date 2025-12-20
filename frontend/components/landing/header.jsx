@@ -44,11 +44,7 @@ export function Header() {
         </nav>
 
         {/* CTA Button */}
-        <div className="hidden md:block">
-          <Button className="bg-[#4C6FFF] hover:bg-[#3B5CE9] text-white text-sm font-medium px-5 h-9 rounded-lg">
-            Launch App
-          </Button>
-        </div>
+        <div className="hidden md:block"></div>
 
         {/* Mobile Menu Button */}
         <button

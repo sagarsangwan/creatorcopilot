@@ -16,13 +16,19 @@ export default function UploadPage() {
   }
   const initiateUpload = async () => {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    console.log(backendUrl);
-    console.log(selectedFile);
+    const uploadData = {
+      media_type: selectedFile.type.split("/")[0],
+      media_format: selectedFile.type.split("/")[1],
+      file_size: selectedFile.size,
+      file_name: selectedFile.name,
+    };
     const result = await fetch(`${backendUrl}/media/initiate-upload/`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${session?.access_token}`,
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify(uploadData),
     });
     const data = await result.json();
     console.log(data);

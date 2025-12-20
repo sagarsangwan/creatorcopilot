@@ -2,6 +2,8 @@ import datetime
 from pydantic import BaseModel, HttpUrl
 from typing import Optional, Dict, Any
 
+# class InitialUploadResponse(BaseModel):
+
 
 class UserSchema(BaseModel):
     id: int
@@ -9,6 +11,9 @@ class UserSchema(BaseModel):
 
 
 class MediaUploadInitiate(BaseModel):
+    media_type: str
+    media_format: str
+    media_name: str
     user: UserSchema
 
 
@@ -25,6 +30,18 @@ class MediaBase(BaseModel):
     folder: Optional[str] = None
     version: Optional[str] = None
     visibility: str = "private"
+
+
+class InitialUploadResponse(BaseModel):
+    api_key: str
+    status: str
+    db_id: int
+    public_id: int
+    folder: str
+
+    cloud_name: str
+    timestamp: int
+    signature: str
 
 
 # class MediaCreate(BaseModel):

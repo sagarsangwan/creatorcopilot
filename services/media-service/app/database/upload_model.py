@@ -1,4 +1,4 @@
-from core.database import Base
+from app.core.database import Base
 from sqlalchemy import (
     JSON,
     Boolean,
@@ -23,6 +23,7 @@ class Media(Base):
 
     media_type = Column(String, nullable=True)  # image | video
     media_format = Column(String, nullable=True)  # jpg | png | mp4 | mov
+    media_name = Column(String, nullable=True)
 
     file_size = Column(BigInteger, nullable=True)
     duration = Column(Float, nullable=True)
