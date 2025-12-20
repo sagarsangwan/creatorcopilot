@@ -14,7 +14,7 @@ app = FastAPI(
     description="Handle media upload",
 )
 
-app.include_router(router, prefix="/api/v1")
+app.include_router(router, prefix="/api/v1/media")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

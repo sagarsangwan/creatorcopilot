@@ -33,10 +33,10 @@ class MediaBase(BaseModel):
 
 
 class InitialUploadResponse(BaseModel):
-    api_key: str
+    api_key: int
     status: str
     db_id: int
-    public_id: int
+    public_id: str
     folder: str
 
     cloud_name: str

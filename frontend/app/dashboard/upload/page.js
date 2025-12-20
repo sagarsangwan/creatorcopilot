@@ -19,8 +19,8 @@ export default function UploadPage() {
     const uploadData = {
       media_type: selectedFile.type.split("/")[0],
       media_format: selectedFile.type.split("/")[1],
-      file_size: selectedFile.size,
-      file_name: selectedFile.name,
+      // file_size: selectedFile.size,
+      media_name: selectedFile.name,
     };
     const result = await fetch(`${backendUrl}/media/initiate-upload/`, {
       method: "POST",
