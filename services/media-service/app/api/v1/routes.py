@@ -25,26 +25,20 @@ async def initiate_upload(payload: MediaUploadInitiate, db: Session = Depends(ge
     signature = cloudinary.utils.api_sign_request(
         params, settings.CLOUDINARY_API_SECRET
     )
-    # new_media = Media(
-    #     user_id=str(payload.user.id),
-    #     folder=folder_path,
-    #     public_id=public_id
-    # )
-    # db.add(new_media)
-    # db.commit()
-    # db.refresh(new_media)
-    cloud_name = settings.CLOUDINARY_CLOUD_NAME
-    api_key = settings.CLOUDINARY_API_KEY
+    new_media = Media(
+        user_id=str(payload.user.id), folder=folder_path, public_id=public_id
+    )
+    db.add(new_media)
+    db.commit()
+    db.refresh(new_media)
 
     return InitialUploadResponse(
-        api_key=api_key,
-        # status=new_media.upload_status,
-        status="INITIATED",
-        # db_id=new_media.id,
-        db_id=1,
+        api_key=settings.CLOUDINARY_API_KEY,
+        status=new_media.upload_status,
+        db_id=new_media.id,
         public_id=public_id,
         folder=folder_path,
-        cloud_name=cloud_name,
+        cloud_name=settings.CLOUDINARY_CLOUD_NAME,
         timestamp=timestamp,
         signature=signature,
     )
@@ -52,18 +46,16 @@ async def initiate_upload(payload: MediaUploadInitiate, db: Session = Depends(ge
 
 @router.post("/webhook/cloudinary")
 async def cloudnary_webhook(request: Request, db: Session = Depends(get_db)):
-    payload = await request.form()
-    payload - dict(payload)
-    recieved_signature = payload.get("signature")
-    recieved_timestamp = payload.get("timestamp")
-
-    if not recieved_signature or not recieved_timestamp:
+    form_data = await request.form()
+    payload = dict(form_data)
+    signature = payload.get("signature")
+    print(payload, "::::::::::::::::::::::")
+    if not signature:
         raise HTTPException(status_code=400, detail="invalid webhook")
-    expected_signature = cloudinary.utils.api_sign_request(
-        {"timestamp": recieved_timestamp}, settings.CLOUDINARY_API_SECRET
-    )
 
-    if not hmac.compare_digest(recieved_signature, expected_signature):
+    if not cloudinary.utils.verify_notification_signature(
+        payload, signature, settings.CLOUDINARY_API_SECRET
+    ):
         raise HTTPException(status_code=401, detail="signature mismatch")
 
     public_id = payload.get("public_id")
@@ -74,7 +66,6 @@ async def cloudnary_webhook(request: Request, db: Session = Depends(get_db)):
     height = payload.get("height")
     version = payload.get("version")
     media_type = payload.get("resource_type")
-    secure_url = payload.get("secure_url")
     url = payload.get("url")
     media_format = payload.get("format")
     original_filename = payload.get("original_filename")
@@ -91,7 +82,7 @@ async def cloudnary_webhook(request: Request, db: Session = Depends(get_db)):
     media.duration = duration
     media.width = width
     media.height = height
-    media.version = version
+    media.version = str(version)
     media.upload_status = "UPLOADED"
     media.raw_response = payload
     media.storage_key = payload.get("asset_id")

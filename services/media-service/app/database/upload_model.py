@@ -43,4 +43,4 @@ class Media(Base):
     soft_deleted = Column(Boolean, default=False)
     visibility = Column(String, default="private")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), nullable=True)

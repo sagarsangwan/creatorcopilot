@@ -2,41 +2,92 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight } from "lucide-react";
-import { UploadCard } from "@/components/dashboard/upload-card";
 import { useSession } from "next-auth/react";
+import SimpleFileUpload from "@/components/dashboard/SimpleFileUpload";
+import { Loader2, ArrowRight } from "lucide-react";
 
 export default function UploadPage() {
-  const router = useRouter();
   const { data: session, status } = useSession();
-
+  const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
-  if (status == "loading") {
-    return <div>loadinggg</div>;
+
+  if (status === "loading") {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Loading...
+      </div>
+    );
   }
+
+  // This is the main function that handles both steps
+  const handleUploadProcess = async () => {
+    if (!(selectedFile instanceof File)) {
+      alert("Invalid file selected");
+      return;
+    }
+    if (!selectedFile) return;
+
+    setLoading(true);
+    try {
+      // Step 1: Get signature from your backend
+      const initiateData = await initiateUpload();
+      if (!initiateData) return;
+
+      // Step 2: Prepare Cloudinary request
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      formData.append("api_key", String(initiateData.api_key));
+      formData.append("timestamp", initiateData.timestamp);
+      formData.append("signature", initiateData.signature);
+      formData.append("public_id", initiateData.public_id);
+      formData.append("folder", initiateData.folder);
+
+      const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${initiateData.cloud_name}/video/upload`;
+
+      // Step 3: Direct upload to Cloudinary
+      const response = await fetch(cloudinaryUrl, {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        console.log("Upload successful!", result);
+        alert("Upload complete!");
+        // Optional: router.push('/dashboard')
+      } else {
+        throw new Error(result.error?.message || "Cloudinary upload failed");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const initiateUpload = async () => {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    const uploadData = {
-      media_type: selectedFile.type.split("/")[0],
-      media_format: selectedFile.type.split("/")[1],
-      // file_size: selectedFile.size,
-      media_name: selectedFile.name,
-    };
+
     const result = await fetch(`${backendUrl}/media/initiate-upload/`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${session?.access_token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(uploadData),
     });
-    const data = await result.json();
-    console.log(data);
+
+    if (!result.ok) {
+      const errorData = await result.json();
+      throw new Error(errorData.detail || "Backend failed to sign upload");
+    }
+
+    return await result.json(); // Important: must return the data
   };
 
   return (
     <div className="mx-auto max-w-2xl space-y-10">
-      {/* Header */}
       <div className="text-center">
         <h2 className="text-[32px] font-semibold tracking-[-0.5px] text-[#111111]">
           Upload Media
@@ -46,22 +97,31 @@ export default function UploadPage() {
         </p>
       </div>
 
-      {/* Upload Card */}
-      <UploadCard
+      <SimpleFileUpload
+        file={selectedFile}
         onFileSelect={setSelectedFile}
-        selectedFile={selectedFile}
         onClear={() => setSelectedFile(null)}
       />
 
-      {/* Continue Button */}
+      {/* ✅ Upload button lives HERE */}
       {selectedFile && (
         <div className="flex justify-center">
           <button
-            onClick={initiateUpload}
-            className="flex items-center gap-2 rounded-xl bg-[#4C6FFF] px-6 py-3.5 text-[15px] font-medium text-white transition-colors hover:bg-[#3B5CE8]"
+            onClick={handleUploadProcess}
+            disabled={loading}
+            className="flex items-center gap-2 rounded-xl bg-[#4C6FFF] px-6 py-3.5 text-[15px] font-medium text-white transition-all hover:bg-[#3B5CE8] disabled:bg-[#A5B4FC]"
           >
-            Upload
-            <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
+            {loading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Uploading…
+              </>
+            ) : (
+              <>
+                Upload
+                <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
+              </>
+            )}
           </button>
         </div>
       )}

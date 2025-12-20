@@ -17,13 +17,12 @@ export function UploadCard({ onFileSelect, selectedFile, onClear }) {
     setIsDragging(false);
   }, []);
 
-  const handleDrop = useCallback(
+  const handleFileChange = useCallback(
     (e) => {
-      e.preventDefault();
-      setIsDragging(false);
-      const file = e.dataTransfer.files[0];
+      const file = e.target.files?.[0];
       if (file) {
         const uploadedFile = {
+          rawFile: file, // <--- ADD THIS LINE (store the actual native file)
           name: file.name,
           size: file.size,
           type: file.type,
@@ -37,11 +36,15 @@ export function UploadCard({ onFileSelect, selectedFile, onClear }) {
     [onFileSelect]
   );
 
-  const handleFileChange = useCallback(
+  // DO THE SAME FOR handleDrop:
+  const handleDrop = useCallback(
     (e) => {
-      const file = e.target.files?.[0];
+      e.preventDefault();
+      setIsDragging(false);
+      const file = e.dataTransfer.files[0];
       if (file) {
         const uploadedFile = {
+          rawFile: file, // <--- ADD THIS LINE
           name: file.name,
           size: file.size,
           type: file.type,
