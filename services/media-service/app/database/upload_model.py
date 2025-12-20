@@ -34,8 +34,8 @@ class Media(Base):
     version = Column(String, nullable=True)
 
     upload_status = Column(
-        String, default="initiated"
-    )  # initiated | pending uploaded | failed
+        String, default="INITIATED"
+    )  # INITIATED|UPLOADED|FAILED|ABANDONED
 
     raw_response = Column(JSON, nullable=True)
     variants = Column(String, default="original")
