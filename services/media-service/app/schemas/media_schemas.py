@@ -11,9 +11,6 @@ class UserSchema(BaseModel):
 
 
 class MediaUploadInitiate(BaseModel):
-    media_type: str
-    media_format: str
-    media_name: str
     user: UserSchema
 
 

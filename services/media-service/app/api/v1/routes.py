@@ -28,10 +28,7 @@ async def initiate_upload(payload: MediaUploadInitiate, db: Session = Depends(ge
     # new_media = Media(
     #     user_id=str(payload.user.id),
     #     folder=folder_path,
-    #     public_id=public_id,
-    #     media_type=payload.media_type,
-    #     media_format=payload.media_format,
-    #     media_name=payload.media_name,
+    #     public_id=public_id
     # )
     # db.add(new_media)
     # db.commit()
@@ -53,7 +50,7 @@ async def initiate_upload(payload: MediaUploadInitiate, db: Session = Depends(ge
     )
 
 
-@router.post("/webhook/cloudnary")
+@router.post("/webhook/cloudinary")
 async def cloudnary_webhook(request: Request, db: Session = Depends(get_db)):
     payload = await request.form()
     payload - dict(payload)
@@ -63,7 +60,7 @@ async def cloudnary_webhook(request: Request, db: Session = Depends(get_db)):
     if not recieved_signature or not recieved_timestamp:
         raise HTTPException(status_code=400, detail="invalid webhook")
     expected_signature = cloudinary.utils.api_sign_request(
-        {"timestamp": recieved_timestamp}, settings.CLOUDINARY_API_KEY
+        {"timestamp": recieved_timestamp}, settings.CLOUDINARY_API_SECRET
     )
 
     if not hmac.compare_digest(recieved_signature, expected_signature):
@@ -76,7 +73,11 @@ async def cloudnary_webhook(request: Request, db: Session = Depends(get_db)):
     width = payload.get("width")
     height = payload.get("height")
     version = payload.get("version")
-    resource_type = payload.get("resource_type")
+    media_type = payload.get("resource_type")
+    secure_url = payload.get("secure_url")
+    url = payload.get("url")
+    media_format = payload.get("format")
+    original_filename = payload.get("original_filename")
 
     if not public_id:
         raise HTTPException(status_code=400, detail="missing public id")
@@ -84,15 +85,19 @@ async def cloudnary_webhook(request: Request, db: Session = Depends(get_db)):
     if not media:
         return {"status": "ignored", "reason": "media not found"}
 
-    media.file_url = secure_url
+    media.secure_url = secure_url
+    media.url = url
     media.file_size = bytes_size
     media.duration = duration
     media.width = width
     media.height = height
     media.version = version
-    media.upload_status = "uploaded"
+    media.upload_status = "UPLOADED"
     media.raw_response = payload
-    media.storage_key = public_id
+    media.storage_key = payload.get("asset_id")
+    media.media_name = original_filename
+    media.media_format = media_format
+    media.media_type = media_type
 
     db.commit()
     return {"status": "ok"}
