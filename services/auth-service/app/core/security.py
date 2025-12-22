@@ -11,7 +11,6 @@ google_request = GoogleAuthRequest()
 
 def create_access_token(data: dict):
     to_encode = data.copy()
-    print(to_encode, "beforeeeeeeeeeeee")
     expire = datetime.now((timezone.utc)) + timedelta(
         minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
     )
@@ -20,7 +19,6 @@ def create_access_token(data: dict):
     encoded_jwt = jwt.encode(
         to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM
     )
-    print(encoded_jwt, "mmmmmmmmmmmmmm")
     return encoded_jwt
 
 
@@ -51,7 +49,6 @@ def decode_token(token: str):
 
 def verify_refresh_token(refresh_token: str):
     payload = decode_token(refresh_token)
-    print(payload)
     if payload and payload.get("type") == "refresh":
         return payload
     return None

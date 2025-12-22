@@ -47,7 +47,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               },
             }
           );
-          console.log(response.data);
 
           // Store the Django tokens in the account object
           account.meta = response.data;
@@ -77,10 +76,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       // Token refresh
       if (getCurrentEpochTime() > token.ref || 0) {
         try {
-          console.log(token.refresh_token);
           const response = await axios.post(
-            // "http://127.0.0.1:8000/api/auth/token/refresh/",
-            `${process.env.NEXTAUTH_BACKEND_URL}auth/token/refresh/`,
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/token/refresh/`,
             {
               refresh: token.refresh_token,
             },

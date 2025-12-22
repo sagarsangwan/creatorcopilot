@@ -2,6 +2,7 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
+
 from core.authentication.jwt_auth import JWTAuthentication
 
 import requests
@@ -37,10 +38,16 @@ def initiate_upload(request):
         **request.data,
         "user": {"id": request.user.id, "email": request.user.email},
     }
-    print("ppppppppppppppppp", payload, flush=True)
 
     res = requests.post(
         f"{MEDIA_BASE}/api/v1/media/initiate-upload", json=payload, timeout=10
     )
-    print(res.json(), flush=True)
+    return Response(res.json(), status=res.status_code)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def list_media(request):
+    payload = {**request.data, "id": request.user.id, "email": request.user.email}
+    res = requests.get(f"{MEDIA_BASE}/api/v1/media/", json=payload, timeout=10)
     return Response(res.json(), status=res.status_code)

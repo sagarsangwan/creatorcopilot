@@ -34,10 +34,8 @@ def get_or_create_user(
     dbuser = db.query(DBUser).filter(DBUser.email == email).first()
 
     if dbuser:
-        print("alreadyy hau ")
         return dbuser
     else:
-        print("alreadyy nhii hai ")
         new_user = DBUser(
             email=email, first_name=first_name, last_name=last_name, image=image_url
         )
@@ -50,7 +48,6 @@ def get_or_create_user(
 @router.post("/auth/google/", response_model=TokenResponse)
 async def google_login(request: GoogleLoginRequest, db: Session = Depends(get_db)):
     try:
-        print("insidegoogle login")
         google_payload = decode_google_id_token_secure(request.token)
         email = google_payload.get("email")
         first_name = google_payload.get("first_name")
@@ -70,14 +67,10 @@ async def google_login(request: GoogleLoginRequest, db: Session = Depends(get_db
             image_url=picture,
             db=db,
         )
-        print(dbuser.id, dbuser.email)
         token_data = {"user_id": dbuser.id, "email": dbuser.email}
-        print(token_data)
         access_token = create_access_token(token_data)
-        print(access_token)
         refresh_token = create_refresh_token(token_data)
         display_name = full_name or f"{dbuser.first_name} {dbuser.last_name}"
-        print(access_token, refresh_token, display_name)
         user_response = UserResponse(
             id=dbuser.id,
             email=dbuser.email,
@@ -105,7 +98,6 @@ async def google_login(request: GoogleLoginRequest, db: Session = Depends(get_db
 async def token_refresh(request: TokenRefreshRequest):
     payload = verify_refresh_token(request.refresh)
     if not payload:
-        print("payloaddddddddd nhiiiiiiiiiiiiiii")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Or Expired Token"
         )

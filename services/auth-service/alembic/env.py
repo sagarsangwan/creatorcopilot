@@ -20,7 +20,6 @@ ENV_PATH = os.path.join(ALEMBIC_ROOT_DIR, ".env")
 
 def run_migrations_online():
     """Run migrations in 'online' mode."""
-    print(f"DEBUG: DATABASE_URL is '{settings.DATABASE_URL}'")
     # 2. Load Environment Variables (Ensure your .env is loaded)
     # Adjust path if .env is in project root, otherwise Alembic init creates it
     load_dotenv(ENV_PATH)

@@ -11,7 +11,6 @@ from .user import SimpleUser
 # JWT_PUBLIC_KEY = os.getenv("JWT_PUBLIC_KEY").replace("\\n", "\n")
 JWT_SECRET_KEY = settings.JWT_SECRET_KEY
 
-print(JWT_SECRET_KEY)
 if not JWT_SECRET_KEY:
     raise RuntimeError("JWT_SECRET_KEY not set in environment")
 

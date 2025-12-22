@@ -2,3 +2,12 @@
 .env
 .env.auth.db
 .env.media.db
+
+
+node_modules/
+.env
+.env.local
+.next/
+dist/
+.cache/
+.cursor

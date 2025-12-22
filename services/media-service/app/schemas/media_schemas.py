@@ -1,6 +1,6 @@
-import datetime
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel, HttpUrl, ConfigDict
 from typing import Optional, Dict, Any
+from datetime import datetime
 
 # class InitialUploadResponse(BaseModel):
 
@@ -46,9 +46,31 @@ class InitialUploadResponse(BaseModel):
 #     upload_Status: str = "uploaded"
 
 
-class MediaRead(BaseModel):
+class MediaResponse(BaseModel):
     id: int
-    uploaded_status: str
+    user_id: str
+    public_id: str
 
-    class config:
+    url: Optional[str] = None
+    secure_url: Optional[str] = None
+
+    media_type: Optional[str] = None  # image | video
+    media_format: Optional[str] = None
+    media_name: Optional[str] = None
+
+    size: Optional[int] = None
+    duration: Optional[float] = None
+    width: Optional[int] = None
+    height: Optional[int] = None
+
+    folder: Optional[str] = None
+    version: Optional[str] = None
+
+    upload_status: str
+    visibility: str
+    created_at: datetime
+    # updated_at: Optional[datetime] = None
+
+    # Enable ORM mode
+    class Config:
         from_attributes = True

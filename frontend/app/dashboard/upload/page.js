@@ -39,7 +39,7 @@ export default function UploadPage() {
       formData.append("api_key", String(initiateData.api_key));
       formData.append("timestamp", initiateData.timestamp);
       formData.append("signature", initiateData.signature);
-      formData.append("public_id", initiateData.public_id);
+      formData.append("public_id", initiateData.public_id.split("/").pop());
       formData.append("folder", initiateData.folder);
 
       const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${initiateData.cloud_name}/video/upload`;
@@ -55,7 +55,6 @@ export default function UploadPage() {
       if (response.ok) {
         console.log("Upload successful!", result);
         alert("Upload complete!");
-        // Optional: router.push('/dashboard')
       } else {
         throw new Error(result.error?.message || "Cloudinary upload failed");
       }
