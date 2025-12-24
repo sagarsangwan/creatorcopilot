@@ -1,7 +1,6 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import UserAvatar from "../auth/user-avatar";
 
 import { usePathname } from "next/navigation";
 import { LogOut, User, Settings } from "lucide-react";
@@ -17,7 +16,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { NotificationDropdown } from "./notification-dropdown";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { user } from "@/lib/mock-data";
 
 const pageTitles = {
   "/dashboard": "Dashboard",
@@ -28,7 +26,7 @@ const pageTitles = {
   "/integrations": "Integrations",
   "/settings": "Settings",
 };
-
+import { signOut } from "next-auth/react";
 export function Topbar() {
   const pathname = usePathname();
   const { data: session, status } = useSession();
@@ -54,24 +52,24 @@ export function Topbar() {
               <Button variant="ghost" size="icon" className="rounded-full">
                 <Avatar className="h-8 w-8">
                   <AvatarImage
-                    src={user.avatar || "/placeholder.svg"}
-                    alt={user.name}
+                    src={session?.user?.picture}
+                    alt={session?.user?.name}
                   />
-                  <AvatarFallback className="text-xs">
-                    {user.name
+                  {/* <AvatarFallback className="text-xs">
+                    {session?.user?.name
                       .split(" ")
                       .map((n) => n[0])
                       .join("")}
-                  </AvatarFallback>
+                  </AvatarFallback> */}
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>
                 <div className="flex flex-col">
-                  <span className="font-medium">{user.name}</span>
+                  <span className="font-medium">{session?.user?.name}</span>
                   <span className="text-xs text-muted-foreground font-normal">
-                    {user.email}
+                    {session?.user?.email}
                   </span>
                 </div>
               </DropdownMenuLabel>
@@ -85,7 +83,10 @@ export function Topbar() {
                 Settings
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-red-600">
+              <DropdownMenuItem
+                onClick={() => signOut()}
+                className="text-red-600"
+              >
                 <LogOut className="h-4 w-4 mr-2" />
                 Log out
               </DropdownMenuItem>

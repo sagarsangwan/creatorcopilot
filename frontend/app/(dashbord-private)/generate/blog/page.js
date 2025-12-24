@@ -49,9 +49,11 @@ export default function GenerateBlogPage() {
     keywords: "",
     outline: "",
     tone: "professional",
-    length: "medium",
+    audience: "medium",
     ctaLink: "",
     platforms: ["linkedin", "twitter"],
+    audience: "General Public",
+    content_goal: "educational",
   });
 
   const updateField = (field, value) => {
@@ -71,7 +73,8 @@ export default function GenerateBlogPage() {
     toast.success("Generation started", {
       description: "Your blog post is being generated...",
     });
-    router.push("/history");
+    console.log(formData);
+    // router.push("/history");
   };
 
   const canProceed = () => {
@@ -137,14 +140,16 @@ export default function GenerateBlogPage() {
                 onChange={(e) => updateField("title", e.target.value)}
               />
               <p className="text-xs text-muted-foreground">
-                A compelling title that captures attention
+                Title of your blog
               </p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="topic">Main Topic / Theme *</Label>
+              <Label htmlFor="topic">
+                Main Topic / Theme / Copy Paste Whole Blog *
+              </Label>
               <Textarea
                 id="topic"
-                placeholder="Describe the main topic or theme of your blog post..."
+                placeholder="Describe the main topic or theme of your blog post or Full blog content written by you ... "
                 value={formData.topic}
                 onChange={(e) => updateField("topic", e.target.value)}
                 className="min-h-[100px]"
@@ -215,7 +220,7 @@ export default function GenerateBlogPage() {
               <Label htmlFor="ctaLink">CTA Link (Optional)</Label>
               <Input
                 id="ctaLink"
-                placeholder="https://yoursite.com/signup"
+                placeholder="https://medium.com/@username/my-blog"
                 value={formData.ctaLink}
                 onChange={(e) => updateField("ctaLink", e.target.value)}
               />
@@ -261,20 +266,53 @@ export default function GenerateBlogPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Content Length</Label>
+                  <Label>Content Goal</Label>
                   <div className="flex flex-wrap gap-2">
                     {[
-                      { id: "short", label: "Short (~500 words)" },
-                      { id: "medium", label: "Medium (~1000 words)" },
-                      { id: "long", label: "Long (~2000 words)" },
+                      { id: "educational", label: "educational" },
+                      { id: "promotional", label: "promotional" },
+                      { id: "Entertainment", label: "Entertainment" },
+                      { id: "Controversial", label: "Controversial" },
+                      { id: "Community Building", label: "Community Building" },
+                    ].map((goal) => (
+                      <Button
+                        key={goal.id}
+                        variant={
+                          formData.content_goal === goal.id
+                            ? "default"
+                            : "outline"
+                        }
+                        size="sm"
+                        onClick={() => updateField("content_goal", goal.id)}
+                      >
+                        {goal.label}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Audience</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { id: "Developers", label: "Developers" },
+                      {
+                        id: "Beginners / Students",
+                        label: "Beginners / Students",
+                      },
+                      { id: "Marketers", label: "Marketers" },
+                      { id: "Investors", label: "Investors" },
+                      { id: "General Public", label: "General Public" },
+                      { id: "Founders / C-Suite", label: "Founders / C-Suite" },
                     ].map((length) => (
                       <Button
                         key={length.id}
                         variant={
-                          formData.length === length.id ? "default" : "outline"
+                          formData.audience === length.id
+                            ? "default"
+                            : "outline"
                         }
                         size="sm"
-                        onClick={() => updateField("length", length.id)}
+                        onClick={() => updateField("audience", length.id)}
                       >
                         {length.label}
                       </Button>
@@ -329,9 +367,17 @@ export default function GenerateBlogPage() {
                 </span>
               </div>
               <div className="flex justify-between items-start">
-                <span className="text-sm text-muted-foreground">Length</span>
+                <span className="text-sm text-muted-foreground">
+                  Content Goal
+                </span>
                 <span className="text-sm font-medium capitalize">
-                  {formData.length}
+                  {formData.content_goal}
+                </span>
+              </div>
+              <div className="flex justify-between items-start">
+                <span className="text-sm text-muted-foreground">Audience</span>
+                <span className="text-sm font-medium capitalize">
+                  {formData.audience}
                 </span>
               </div>
             </div>
