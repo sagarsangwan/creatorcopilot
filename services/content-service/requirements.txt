@@ -1,13 +1,9 @@
 fastapi
 uvicorn
-gunicorn # Used for managing Uvicorn workers (production readiness)
-python-jose[cryptography] # For JWT tokens (Auth)
-httpx # For making requests to Google (OAuth)
-SQLAlchemy # Or your preferred ORM/DB tool for the Auth DB
-psycopg2-binary # PostgreSQL driver
+gunicorn 
+SQLAlchemy 
+psycopg2-binary 
 requests
 pydantic 
 dotenv
-google-auth
-google-auth[httpx]
 alembic

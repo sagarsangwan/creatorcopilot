@@ -4,6 +4,7 @@ from .views import (
     refresh_token_refresh_gateway,
     initiate_upload,
     list_media,
+    content_post_view,
 )
 
 urlpatterns = [
@@ -11,4 +12,5 @@ urlpatterns = [
     path("auth/token/refresh/", refresh_token_refresh_gateway),
     path("media/initiate-upload/", initiate_upload),
     path("media/", list_media),
+    path("posts/", content_post_view),
 ]

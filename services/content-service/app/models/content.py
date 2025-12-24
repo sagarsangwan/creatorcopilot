@@ -19,7 +19,7 @@ class ContentPost(Base):
     title = Column(String(255), nullable=False)
     content = Column(Text, nullable=False)
 
-    ctaLink = Column(Text, nullable=False)
+    ctaLink = Column(String, nullable=False)
 
     language = Column(String(10), default="en")
 

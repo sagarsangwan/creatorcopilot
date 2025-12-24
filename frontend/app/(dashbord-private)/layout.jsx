@@ -10,8 +10,8 @@ export default function DashboardLayout({ children }) {
       <SidebarInset>
         <Topbar />
         <main className="flex-1 p-4 md:p-6 overflow-auto">{children}</main>
+        <Toaster position="bottom-right" richColors="true" closeButton />
       </SidebarInset>
-      <Toaster position="bottom-right" richColors closeButton />
     </SidebarProvider>
   );
 }

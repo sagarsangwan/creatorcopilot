@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/collapsible";
 import { toast } from "sonner";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 const steps = [
   { id: 1, title: "Core Details", icon: FileText },
@@ -40,13 +41,16 @@ const platforms = [
 ];
 
 export default function GenerateBlogPage() {
+  const { data: session } = useSession();
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
   const [currentStep, setCurrentStep] = useState(1);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     content: "",
-    keywords: "",
+    keywords: [],
     outline: "",
     tone: "professional",
     audience: "medium",
@@ -69,12 +73,34 @@ export default function GenerateBlogPage() {
     }));
   };
 
-  const handleGenerate = () => {
-    toast.success("Generation started", {
-      description: "Your blog post is being generated...",
-    });
-    console.log(formData);
-    // router.push("/history");
+  const handleGenerate = async () => {
+    setLoading(true);
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+      const res = await fetch(`${backendUrl}/posts/`, {
+        method: "POST",
+        body: JSON.stringify(formData),
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.log(errorData);
+        toast.error(errorData.message || "Backend failed to sign upload");
+        return;
+      }
+      const data = await res.json();
+      toast.success("successfully completed request");
+      console.log(data);
+      return;
+    } catch (e) {
+      console.error("Generation Error:", e);
+      toast.error(e instanceof Error ? e.message : "A network error occurred");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const canProceed = () => {

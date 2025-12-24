@@ -11,6 +11,7 @@ from django.conf import settings
 
 AUTH_BASE = settings.AUTH_SERVICE_URL
 MEDIA_BASE = settings.MEDIA_SERVICE_URL
+CONTENT_BASE = settings.CONTENT_BASE_URL
 
 
 @api_view(["POST"])
@@ -51,3 +52,24 @@ def list_media(request):
     payload = {**request.data, "id": request.user.id, "email": request.user.email}
     res = requests.get(f"{MEDIA_BASE}/api/v1/media/", json=payload, timeout=10)
     return Response(res.json(), status=res.status_code)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def content_post_view(request):
+    headers = {
+        "X-User-Id": str(request.user.id),
+        "X-User-Email": request.user.email,
+        "Content-Type": "application/json",
+    }
+
+    payload = request.data
+    print(payload, flush=True)
+    res = requests.post(
+        f"{CONTENT_BASE}/api/v1/content/posts",
+        headers=headers,
+        json=payload,
+        timeout=10,
+    )
+
+    return Response(data=res.json(), status=res.status_code)

@@ -17,6 +17,22 @@ services:
       retries: 5
     networks:
       - microservice-network
+  db-content:
+    image: postgres:15-alpine 
+    restart: always
+    env_file:
+      - ./.env.content.db
+    volumes:
+    - content_postgres_data:/var/lib/postgresql/data/
+    ports:
+    - "55435:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U content_service_user -d fastapi_content_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - microservice-network
   
   db-media:
     image: postgres:15-alpine
@@ -81,6 +97,19 @@ services:
       - ./services/media-service:/app
     networks:
       - microservice-network
+  content-service:
+    build:
+      context: ./services/content-service
+      dockerfile: Dockerfile
+    depends_on:
+      db-media:
+        condition: service_healthy
+    ports:
+      - "8003:8003"
+    volumes:
+      - ./services/content-service:/app
+    networks:
+      - microservice-network
         
   
 
@@ -91,3 +120,4 @@ networks:
 volumes:
   auth_postgres_data:
   media_postgres_data:
+  content_postgres_data:
