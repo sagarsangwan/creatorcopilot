@@ -29,4 +29,4 @@ def posts(
     db: Session = Depends(get_db),
 ):
     print(payload, user_id, flush=True)
-    return ContentCreateResponseSchema(id="sgar", status="initiated")
+    return ContentCreateResponseSchema(id="gen-001", status="initiated")

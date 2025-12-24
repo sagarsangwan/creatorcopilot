@@ -76,6 +76,7 @@ export default function GenerateBlogPage() {
   const handleGenerate = async () => {
     setLoading(true);
     try {
+      toast.message("Sending Data to Ai Model Please wait ");
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
       const res = await fetch(`${backendUrl}/posts/`, {
         method: "POST",
@@ -92,9 +93,13 @@ export default function GenerateBlogPage() {
         return;
       }
       const data = await res.json();
-      toast.success("successfully completed request");
-      console.log(data);
-      return;
+      toast.success(
+        "Successfully Uploaded Data to AI Model You Will Be Redireccted To Detail Page"
+      );
+
+      if (data.id) {
+        router.push(`/history/${data.id}`);
+      }
     } catch (e) {
       console.error("Generation Error:", e);
       toast.error(e instanceof Error ? e.message : "A network error occurred");
@@ -436,9 +441,9 @@ export default function GenerateBlogPage() {
             <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
         ) : (
-          <Button onClick={handleGenerate}>
+          <Button onClick={handleGenerate} disabled={loading}>
             <Sparkles className="h-4 w-4 mr-2" />
-            Generate Blog
+            {!loading ? "Generate Blog" : "Uploading Details to the Ai "}
           </Button>
         )}
       </div>
