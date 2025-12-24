@@ -19,15 +19,16 @@ class ContentPost(Base):
     title = Column(String(255), nullable=False)
     content = Column(Text, nullable=False)
 
-    primary_link = Column(Text, nullable=False)  # CTA (Medium/blog URL)
+    ctaLink = Column(Text, nullable=False)
 
     language = Column(String(10), default="en")
-    tone = Column(String(50))  # professional, casual, storytelling
 
-    audience = Column(String(100))  # developers, founders
-    content_goal = Column(String(50))  # educational, promotional
+    outline = Column(String, nullable=True)
+    tone = Column(String(50))
+    audience = Column(String(100))
+    content_goal = Column(String(50))
 
-    keywords = Column(ARRAY(String))
+    keywords = Column(ARRAY(String), nullable=True)
 
     status = Column(
         Enum(ContentStatus, name="content_status"),

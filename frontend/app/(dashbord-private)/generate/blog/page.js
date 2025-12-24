@@ -45,7 +45,7 @@ export default function GenerateBlogPage() {
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
-    topic: "",
+    content: "",
     keywords: "",
     outline: "",
     tone: "professional",
@@ -79,7 +79,7 @@ export default function GenerateBlogPage() {
 
   const canProceed = () => {
     if (currentStep === 1) {
-      return formData.title.trim() && formData.topic.trim();
+      return formData.title.trim() && formData.content.trim();
     }
     return true;
   };
@@ -144,14 +144,14 @@ export default function GenerateBlogPage() {
               </p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="topic">
+              <Label htmlFor="content">
                 Main Topic / Theme / Copy Paste Whole Blog *
               </Label>
               <Textarea
-                id="topic"
+                id="content"
                 placeholder="Describe the main topic or theme of your blog post or Full blog content written by you ... "
-                value={formData.topic}
-                onChange={(e) => updateField("topic", e.target.value)}
+                value={formData.content}
+                onChange={(e) => updateField("content", e.target.value)}
                 className="min-h-[100px]"
               />
             </div>
@@ -343,9 +343,9 @@ export default function GenerateBlogPage() {
                 </span>
               </div>
               <div className="flex justify-between items-start">
-                <span className="text-sm text-muted-foreground">Topic</span>
+                <span className="text-sm text-muted-foreground">content</span>
                 <span className="text-sm font-medium text-right max-w-[60%] line-clamp-2">
-                  {formData.topic || "Not set"}
+                  {formData.content || "Not set"}
                 </span>
               </div>
               <div className="flex justify-between items-start">
