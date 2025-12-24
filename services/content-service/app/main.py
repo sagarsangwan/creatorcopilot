@@ -14,8 +14,6 @@ app = FastAPI(
     redirect_slashes=True,
 )
 app.include_router(router, prefix="/api/v1/content")
-for route in app.routes:
-    print(f"Route: {route.path} | Methods: {route.methods}", flush=True)
 origins = [
     "http://localhost:3000",
     "http://gateway:8000",

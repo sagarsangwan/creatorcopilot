@@ -28,5 +28,4 @@ def posts(
     user_id: str = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    print(payload, user_id, flush=True)
     return ContentCreateResponseSchema(id="gen-001", status="initiated")

@@ -102,8 +102,10 @@ services:
       context: ./services/content-service
       dockerfile: Dockerfile
     depends_on:
-      db-media:
+      db-content:
         condition: service_healthy
+      redis:
+        condition: service_started
     ports:
       - "8003:8003"
     volumes:
@@ -111,6 +113,30 @@ services:
     networks:
       - microservice-network
         
+  content-worker:
+    build:
+      context: ./services/content-service
+      dockerfile: Dockerfile
+    depends_on:
+      db-content:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    command: celery -A app.celery_app.celery worker -l info
+    env_file:
+      - ./services/content-service/.env
+    volumes:
+      - ./services/content-service:/app
+    networks:
+      - microservice-network
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - "6379:6379"   # optional; remove in prod
+    networks:
+      - microservice-network
   
 
 

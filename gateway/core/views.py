@@ -64,7 +64,6 @@ def content_post_view(request):
     }
 
     payload = request.data
-    print(payload, flush=True)
     res = requests.post(
         f"{CONTENT_BASE}/api/v1/content/posts",
         headers=headers,
