@@ -58,6 +58,7 @@ def get_post_details(
     db: Session = Depends(get_db),
     user_id: str = Depends(get_current_user),
 ):
+    print(content_id, flush=True)
     content = (
         db.query(ContentPost)
         .filter(ContentPost.id == content_id, ContentPost.user_id == user_id)
@@ -65,8 +66,14 @@ def get_post_details(
     )
     if not content:
         raise HTTPException(status_code=404, detail="Content You Requested Not Found ")
-    job = db.query(ContentJob).filter(
-        ContentJob.content_post_id == content.id,
-        ContentJob.job_type == job_type,
+    job = (
+        db.query(ContentJob)
+        .filter(
+            ContentJob.content_post_id == content.id,
+            ContentJob.job_type == job_type,
+        )
+        .order_by(ContentJob.created_at.desc())
+        .first()
     )
+
     return ContentDetailResponse(content=content, job=job if job else None)

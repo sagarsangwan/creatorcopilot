@@ -2,6 +2,7 @@ from pydantic import BaseModel, HttpUrl
 from typing import List, Optional
 from datetime import datetime
 from .content_jobs import JobResponseSchema
+from uuid import UUID
 
 
 class ContentGenerationRequest(BaseModel):
@@ -46,7 +47,7 @@ class ContentGenerateResponse(BaseModel):
 
 
 class ContentDetailSchema(BaseModel):
-    id: str
+    id: UUID
     title: str
     content: str
     ctaLink: str
@@ -59,31 +60,39 @@ class ContentDetailSchema(BaseModel):
 
     keywords: Optional[List[str]] = []
 
-    outline: Optional[str]
     ai_summary: Optional[str]
-    ai_key_points: Optional[List[str]]
+    ai_key_points: Optional[List[str]] = []
 
     status: str
 
-    jobs: List[JobResponseSchema]
+    # jobs: List[JobResponseSchema]
 
     created_at: datetime
     updated_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class JobDetailSchema(BaseModel):
-    id = str
+    id: UUID
     job_type: str
     retries: int
-    error: Optional[str]
+    status: str
+    error: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+
+
+class ContentDetailResponse(BaseModel):
+    content: ContentDetailSchema
+    job: Optional[JobDetailSchema] = None
+
+    class Config:
+        from_attributes = True
 
 
 class ContentUpdateSchema(BaseModel):
@@ -100,11 +109,3 @@ class ContentUpdateSchema(BaseModel):
     outline: Optional[str]
     ai_summary: Optional[str]
     ai_key_points: Optional[List[str]]
-
-
-class ContentDetailResponse(BaseModel):
-    content: ContentDetailSchema
-    job: Optional[JobDetailSchema]
-
-    class Config:
-        orm_mode = True

@@ -92,7 +92,10 @@ def get_content_detais(request, content_id):
     if job_type:
         params["job_type"] = job_type
     res = requests.get(
-        f"{CONTENT_BASE}/posts/{content_id}", headers=headers, params=params, timeout=10
+        f"{CONTENT_BASE}/api/v1/content/posts/{content_id}",
+        headers=headers,
+        params=params,
+        timeout=10,
     )
 
     return Response(data=res.json(), status=res.status_code)

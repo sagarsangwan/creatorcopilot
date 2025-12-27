@@ -14,5 +14,5 @@ urlpatterns = [
     path("media/initiate-upload/", initiate_upload),
     path("media/", list_media),
     path("posts/", content_post_view),
-    path("post/{content_id}/", get_content_detais),
+    path("posts/<str:content_id>/", get_content_detais),
 ]
