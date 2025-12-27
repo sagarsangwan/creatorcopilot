@@ -14,6 +14,15 @@ MEDIA_BASE = settings.MEDIA_SERVICE_URL
 CONTENT_BASE = settings.CONTENT_BASE_URL
 
 
+def get_headers(request):
+    headers = {
+        "X-User-Id": str(request.user.id),
+        "X-User-Email": request.user.email,
+        "Content-Type": "application/json",
+    }
+    return headers
+
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def google_login_gateway(request):
@@ -69,6 +78,21 @@ def content_post_view(request):
         headers=headers,
         json=payload,
         timeout=10,
+    )
+
+    return Response(data=res.json(), status=res.status_code)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_content_detais(request, content_id):
+    headers = get_headers(request)
+    job_type = request.query_params.get("job_type")
+    params = {}
+    if job_type:
+        params["job_type"] = job_type
+    res = requests.get(
+        f"{CONTENT_BASE}/posts/{content_id}", headers=headers, params=params, timeout=10
     )
 
     return Response(data=res.json(), status=res.status_code)

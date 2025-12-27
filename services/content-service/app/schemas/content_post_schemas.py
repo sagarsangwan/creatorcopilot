@@ -27,22 +27,22 @@ class ContentGenerateResponse(BaseModel):
     # created_at: datetime
 
 
-class ContentCreateSchema(BaseModel):
-    title: str
-    content: str
-    ctaLink: str
-    language: str = "en"
-    tone: str
-    audience: str
-    content_goal: str
-    keywords: Optional[List[str]] = []
-    platforms: Optional[List[str]] = None
+# class ContentCreateSchema(BaseModel):
+#     title: str
+#     content: str
+#     ctaLink: str
+#     language: str = "en"
+#     tone: str
+#     audience: str
+#     content_goal: str
+#     keywords: Optional[List[str]] = []
+#     platforms: Optional[List[str]] = None
 
 
-class ContentCreateResponseSchema(BaseModel):
-    id: str
-    status: str
-    created_at: datetime
+# class ContentCreateResponseSchema(BaseModel):
+#     id: str
+#     status: str
+#     created_at: datetime
 
 
 class ContentDetailSchema(BaseModel):
@@ -57,7 +57,7 @@ class ContentDetailSchema(BaseModel):
     content_goal: Optional[str]
     platforms: Optional[List[str]] = []
 
-    keywords: Optional[List[str]]
+    keywords: Optional[List[str]] = []
 
     outline: Optional[str]
     ai_summary: Optional[str]
@@ -69,6 +69,21 @@ class ContentDetailSchema(BaseModel):
 
     created_at: datetime
     updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class JobDetailSchema(BaseModel):
+    id = str
+    job_type: str
+    retries: int
+    error: Optional[str]
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
 
 
 class ContentUpdateSchema(BaseModel):
@@ -85,3 +100,11 @@ class ContentUpdateSchema(BaseModel):
     outline: Optional[str]
     ai_summary: Optional[str]
     ai_key_points: Optional[List[str]]
+
+
+class ContentDetailResponse(BaseModel):
+    content: ContentDetailSchema
+    job: Optional[JobDetailSchema]
+
+    class Config:
+        orm_mode = True

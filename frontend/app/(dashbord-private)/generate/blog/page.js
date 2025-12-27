@@ -99,9 +99,8 @@ export default function GenerateBlogPage() {
       toast.success(
         "Successfully Uploaded Data to AI Model You Will Be Redireccted To Detail Page"
       );
-
       if (data.content_id) {
-        router.push(`/history/${data.id}`);
+        router.push(`/history/${data.content_id}`);
       }
     } catch (e) {
       console.error("Generation Error:", e);

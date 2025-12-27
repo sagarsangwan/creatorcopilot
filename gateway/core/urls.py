@@ -5,6 +5,7 @@ from .views import (
     initiate_upload,
     list_media,
     content_post_view,
+    get_content_detais,
 )
 
 urlpatterns = [
@@ -13,4 +14,5 @@ urlpatterns = [
     path("media/initiate-upload/", initiate_upload),
     path("media/", list_media),
     path("posts/", content_post_view),
+    path("post/{content_id}/", get_content_detais),
 ]
