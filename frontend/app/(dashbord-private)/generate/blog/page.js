@@ -1,5 +1,6 @@
 "use client";
-
+import { Badge } from "@/components/ui/badge";
+import { X } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -58,6 +59,8 @@ export default function GenerateBlogPage() {
     platforms: ["linkedin", "twitter"],
     audience: "General Public",
     content_goal: "educational",
+    job_type: "GENERATE_SOCIAL_POSTS",
+    language: "en",
   });
 
   const updateField = (field, value) => {
@@ -97,7 +100,7 @@ export default function GenerateBlogPage() {
         "Successfully Uploaded Data to AI Model You Will Be Redireccted To Detail Page"
       );
 
-      if (data.id) {
+      if (data.content_id) {
         router.push(`/history/${data.id}`);
       }
     } catch (e) {
@@ -107,7 +110,27 @@ export default function GenerateBlogPage() {
       setLoading(false);
     }
   };
+  const addKeyword = (e) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      const value = e.target.value.trim().replace(",", "");
 
+      if (value && !formData.keywords.includes(value)) {
+        setFormData((prev) => ({
+          ...prev,
+          keywords: [...prev.keywords, value],
+        }));
+        e.target.value = "";
+      }
+    }
+  };
+
+  const removeKeyword = (tagToRemove) => {
+    setFormData((prev) => ({
+      ...prev,
+      keywords: prev.keywords.filter((tag) => tag !== tagToRemove),
+    }));
+  };
   const canProceed = () => {
     if (currentStep === 1) {
       return formData.title.trim() && formData.content.trim();
@@ -188,25 +211,41 @@ export default function GenerateBlogPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="keywords">Target Keywords</Label>
+
+              <div className="flex flex-wrap gap-2 mb-2">
+                {formData.keywords.map((tag) => (
+                  <Badge
+                    key={tag}
+                    variant="secondary"
+                    className="py-1 px-2 flex items-center gap-1 transition-all animate-in fade-in zoom-in duration-200"
+                  >
+                    {tag}
+                    <button
+                      type="button"
+                      onClick={() => removeKeyword(tag)}
+                      className="ml-1 hover:bg-muted rounded-full p-0.5"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+
               <Input
                 id="keywords"
-                placeholder="productivity, time management, work-life balance"
-                value={formData.keywords}
-                onChange={(e) => updateField("keywords", e.target.value)}
+                placeholder={
+                  formData.keywords.length === 0
+                    ? "Type and press Enter..."
+                    : "Add more..."
+                }
+                onKeyDown={addKeyword}
+                className="bg-muted/30 focus-visible:ring-1"
               />
+
               <p className="text-xs text-muted-foreground">
-                Comma-separated keywords for SEO optimization
+                Type a keyword and press <strong>Enter</strong> or{" "}
+                <strong>Comma</strong> to add it to the list.
               </p>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="outline">Content Outline (Optional)</Label>
-              <Textarea
-                id="outline"
-                placeholder="Add any specific points or sections you want to cover..."
-                value={formData.outline}
-                onChange={(e) => updateField("outline", e.target.value)}
-                className="min-h-[80px]"
-              />
             </div>
           </CardContent>
         </Card>

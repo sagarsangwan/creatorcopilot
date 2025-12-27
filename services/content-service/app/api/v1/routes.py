@@ -3,8 +3,8 @@ import logging
 from app.core.database import get_db
 from sqlalchemy.orm import Session
 from app.schemas.content_post_schemas import (
-    ContentCreateSchema,
-    ContentCreateResponseSchema,
+    ContentGenerationRequest,
+    ContentGenerateResponse,
 )
 from app.models.content import ContentPost
 from app.models.jobs import ContentJob
@@ -22,10 +22,13 @@ def get_current_user(request: Request):
     return user_id
 
 
-@router.post("/posts", response_model=ContentCreateResponseSchema)
+@router.post("/posts", response_model=ContentGenerateResponse)
 def posts(
-    payload: ContentCreateSchema,
+    payload: ContentGenerationRequest,
     user_id: str = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return ContentCreateResponseSchema(id="gen-001", status="initiated")
+    print(payload, user_id, flush=True)
+    return ContentGenerateResponse(
+        content_id="gen-001", status="initiated", job_id="001"
+    )

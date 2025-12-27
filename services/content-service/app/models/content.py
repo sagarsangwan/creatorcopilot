@@ -29,7 +29,7 @@ class ContentPost(Base):
     content_goal = Column(String(50))
 
     keywords = Column(ARRAY(String), nullable=True)
-
+    platforms = Column(ARRAY(String), nullable=True)
     status = Column(
         Enum(ContentStatus, name="content_status"),
         default=ContentStatus.DRAFT,
