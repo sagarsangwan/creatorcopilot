@@ -6,6 +6,7 @@ from .views import (
     list_media,
     content_post_view,
     get_content_detais,
+    get_all_posts,
 )
 
 urlpatterns = [
@@ -15,4 +16,5 @@ urlpatterns = [
     path("media/", list_media),
     path("posts/", content_post_view),
     path("posts/<str:content_id>/", get_content_detais),
+    path("posts/", get_all_posts),
 ]

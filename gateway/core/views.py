@@ -99,3 +99,11 @@ def get_content_detais(request, content_id):
     )
 
     return Response(data=res.json(), status=res.status_code)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_all_posts(request):
+    print("helloooo,,,,,,,,,,,,,,,,,'''''''''''''''''", flush=True)
+    res = requests.get(f"{CONTENT_BASE}/api/v1/content/posts", timeout=10)
+    return Response(data=res.json(), status=res.status_code)

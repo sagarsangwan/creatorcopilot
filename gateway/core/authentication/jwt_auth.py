@@ -4,7 +4,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from django.conf import settings
 
 # import jwt
-from jose import jwt
+from jose import jwt, JWTError, exceptions
 
 from .user import SimpleUser
 
@@ -20,14 +20,20 @@ class JWTAuthentication(BaseAuthentication):
         auth = request.headers.get("Authorization")
         if not auth or not auth.startswith("Bearer "):
             return None
-        token = auth.split(" ")[1]
+        parts = auth.split(" ")
+        if len(parts) != 2:
+            raise AuthenticationFailed("MALFORMED_AUTH_HEADER")
+        token = parts[1]
+        if not token:
+            raise AuthenticationFailed("INVALID_TOKEN_FORMAT")
+
         try:
             payload = jwt.decode(
                 token, JWT_SECRET_KEY, algorithms=["HS256"], audience="creatorcopilot"
             )
-        except jwt.ExpiredSignatureError:
+        except exceptions.ExpiredSignatureError:
             raise AuthenticationFailed("TOKEN_EXPIRED")
-        except jwt.InvalidTokenError:
+        except JWTError:
             raise AuthenticationFailed("INVALID_TOKEN")
         if "user_id" not in payload:
             raise AuthenticationFailed("INVALID_TOKEN_PAYLOAD")
