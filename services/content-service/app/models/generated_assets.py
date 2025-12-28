@@ -53,7 +53,7 @@ class GeneratedAsset(Base):
     text = Column(Text, nullable=True)
 
     # Structured extras (hashtags, first_comment, hooks, etc.)
-    metadata = Column(JSONB, nullable=True)
+    meta_data = Column(JSONB, nullable=True)
 
     # AI traceability
     ai_provider = Column(String(30), nullable=False)  # gemini, openai

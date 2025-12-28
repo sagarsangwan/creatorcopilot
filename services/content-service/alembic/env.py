@@ -8,6 +8,7 @@ import os
 
 from dotenv import load_dotenv
 from app.core.database import Base
+import app.models
 
 load_dotenv()
 ALEMBIC_ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

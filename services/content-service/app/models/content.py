@@ -3,6 +3,7 @@ from sqlalchemy import Column, String, UUID, ARRAY, Text, Enum, TIMESTAMP
 from sqlalchemy.sql import func
 import enum
 import uuid
+from sqlalchemy.orm import relationship
 
 
 class ContentStatus(str, enum.Enum):
@@ -36,9 +37,12 @@ class ContentPost(Base):
         nullable=False,
     )
 
-    ai_summary = Column(Text)
-    ai_key_points = Column(ARRAY(String))
-
+    visuals = relationship(
+        "VisualAsset", back_populates="content", cascade="all, delete-orphan"
+    )
+    assets = relationship(
+        "GeneratedAsset", back_populates="content", cascade="all, delete-orphan"
+    )
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
     updated_at = Column(
         TIMESTAMP(timezone=True),
