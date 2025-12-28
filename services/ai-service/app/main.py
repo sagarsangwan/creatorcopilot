@@ -1,6 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
+from app.schemas.generate_post_captions import GenrateAiResponseRequest
+
+from .get_response_from_ai import getblogCaptionsFromAi
+from .prompts.propmt_builder import build_prompt
 
 origins = [
     "http://localhost:3000",
@@ -29,5 +33,20 @@ def index():
 
 
 @app.post("/api/v1/ai-service/generate-post-captions")
-def generate_post_captions(request):
-    return {"message": "hello"}
+def generate_post_captions(payload: GenrateAiResponseRequest):
+    print(payload, flush=True)
+    prompt = build_prompt(
+        title=payload.title,
+        content=payload.content,
+        ctaLink=payload.ctaLink,
+        language=payload.language,
+        tone=payload.tone,
+        audience=payload.audience,
+        platforms=payload.platforms,
+        content_goal=payload.content_goal,
+        ctaType=payload.ctaType,
+    )
+    res = getblogCaptionsFromAi(blogCaptionPrompt=prompt)
+    print(res, flush=True)
+
+    return res

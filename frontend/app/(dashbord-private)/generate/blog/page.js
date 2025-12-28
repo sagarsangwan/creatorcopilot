@@ -4,6 +4,16 @@ import { X } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+import {
   FileText,
   Settings2,
   CheckCircle,
@@ -61,6 +71,7 @@ export default function GenerateBlogPage() {
     content_goal: "educational",
     job_type: "GENERATE_SOCIAL_POSTS",
     language: "en",
+    ctaType: "",
   });
 
   const updateField = (field, value) => {
@@ -286,7 +297,27 @@ export default function GenerateBlogPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="ctaLink">CTA Link (Optional)</Label>
+              <Label htmlFor="ctaType">CTA Type (Optional)</Label>
+              <Select
+                value={formData.ctaType}
+                onValueChange={(value) => updateField("ctaType", value)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select action type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="READ_BLOG">Read Blog</SelectItem>
+                    <SelectItem value="VISIT_WEBSITE">Visit Website</SelectItem>
+                    <SelectItem value="SIGN_UP">Sign Up</SelectItem>
+                    <SelectItem value="LEARN_MORE">Learn More</SelectItem>
+                    <SelectItem value="WATCH_VIDEO">Watch Video</SelectItem>
+                    <SelectItem value="DOWNLOAD">Download</SelectItem>
+                    <SelectItem value="NONE">None</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+
               <Input
                 id="ctaLink"
                 placeholder="https://medium.com/@username/my-blog"
@@ -294,7 +325,7 @@ export default function GenerateBlogPage() {
                 onChange={(e) => updateField("ctaLink", e.target.value)}
               />
               <p className="text-xs text-muted-foreground">
-                Link to include in your call-to-action
+                Type and link to include in your call-to-action
               </p>
             </div>
 

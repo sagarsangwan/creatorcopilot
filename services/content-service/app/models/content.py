@@ -13,6 +13,16 @@ class ContentStatus(str, enum.Enum):
     FAILED = "FAILED"
 
 
+class CtaType(str, enum.Enum):
+    READ_BLOG = "READ_BLOG"
+    VISITWEBSITE = "VISIT_WEBSITE"
+    SIGN_UP = "SIGN_UP"
+    LEARN_MORE = "LEARN_MORE"
+    WATCH_VIDEO = "WATCH_VIDEO"
+    DOWNLOAD = "DOWNLOAD"
+    NONE = "NONE"
+
+
 class ContentPost(Base):
     __tablename__ = "content_posts"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -21,6 +31,7 @@ class ContentPost(Base):
     content = Column(Text, nullable=False)
 
     ctaLink = Column(String, nullable=False)
+    ctaType = Column(Enum(CtaType, name="cta_type"), default=CtaType.NONE)
 
     language = Column(String(10), default="en")
 

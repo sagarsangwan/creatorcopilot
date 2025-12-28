@@ -11,7 +11,7 @@ class ContentGenerationRequest(BaseModel):
     ctaLink: str = None
 
     language: str = "en"
-
+    ctaType: str
     tone: Optional[str] = None
     audience: Optional[str] = None
     content_goal: Optional[str] = None
@@ -43,6 +43,7 @@ class ContentDetailSchema(ContentBaseSchema):
     platforms: Optional[List[str]] = []
     content: str
     ctaLink: str
+    ctaType: str
     language: str
     tone: Optional[str]
     audience: Optional[str]
