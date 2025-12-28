@@ -11,6 +11,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import HistoryLoading from "./loading";
+import NoPostsFoundCard from "@/components/dashboard/posts/no-posts-found-card";
 
 export default function HistoryPage() {
   const { data: session, status } = useSession();
@@ -81,35 +82,7 @@ export default function HistoryPage() {
             <GenerationCard key={item.id} item={item} />
           ))
         ) : (
-          <Card className="border-dashed">
-            <CardContent className="py-12 text-center">
-              <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
-                <FolderOpen className="h-6 w-6 text-muted-foreground" />
-              </div>
-              <h3 className="font-medium mb-1">No results found</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                {searchQuery
-                  ? "Try a different search term"
-                  : "Start creating content to see it here"}
-              </p>
-              {!searchQuery && (
-                <div className="flex gap-2 justify-center">
-                  <Button size="sm" asChild>
-                    <Link href="/generate/blog">
-                      <FileText className="h-4 w-4 mr-2" />
-                      Create Blog
-                    </Link>
-                  </Button>
-                  <Button size="sm" variant="outline" asChild>
-                    <Link href="/generate/video">
-                      <Video className="h-4 w-4 mr-2" />
-                      Upload Video
-                    </Link>
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <NoPostsFoundCard ShowCreateButtons="true" />
         )}
       </div>
     </div>

@@ -11,6 +11,8 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import DashboardLoading from "./loading";
 import HistoryLoading from "../history/loading";
+import { PostFetchingErrorCard } from "@/components/dashboard/error/post-fetching-error-card";
+import NoPostsFoundCard from "@/components/dashboard/posts/no-posts-found-card";
 
 export default function DashboardPage() {
   const recentItems = mockData.slice(0, 4);
@@ -26,7 +28,7 @@ export default function DashboardPage() {
         setLoading(true);
         setError("");
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/?limit=2`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/?limit=3`,
           {
             headers: {
               Authorization: `Bearer ${session?.access_token}`,
@@ -144,33 +146,9 @@ export default function DashboardPage() {
         {loading ? (
           <HistoryLoading />
         ) : error ? (
-          <div>error</div>
+          <PostFetchingErrorCard message={error} />
         ) : data?.total === 0 ? (
-          <Card className="border-dashed">
-            <CardContent className="py-12 text-center">
-              <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
-                <FolderOpen className="h-6 w-6 text-muted-foreground" />
-              </div>
-              <h3 className="font-medium mb-1">No generations yet</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Start creating content to see your work here
-              </p>
-              <div className="flex gap-2 justify-center">
-                <Button size="sm" asChild>
-                  <Link href="/generate/blog">
-                    <FileText className="h-4 w-4 mr-2" />
-                    Create Blog
-                  </Link>
-                </Button>
-                <Button size="sm" variant="outline" asChild>
-                  <Link href="/generate/video">
-                    <Video className="h-4 w-4 mr-2" />
-                    Upload Video
-                  </Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <NoPostsFoundCard ShowCreateButtons={false} />
         ) : (
           <div className="grid gap-3">
             {data?.posts.map((item) => (
