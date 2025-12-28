@@ -17,7 +17,7 @@ export default function HistoryPage() {
   console.log(status);
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [posts, setPosts] = useState([]);
+  const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [sortBy, setSortBy] = useState("newest");
@@ -26,6 +26,7 @@ export default function HistoryPage() {
       if (status !== "authenticated") return;
       try {
         setLoading(true);
+        setError("");
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/`,
           {
@@ -36,13 +37,11 @@ export default function HistoryPage() {
         );
         if (!res.ok) {
           const errorBody = await res.json();
-          console.log(errorBody, "errorbody");
           throw new Error(errorBody?.detail || "Failed to load details");
         }
-        const data = res.json();
-        setPosts(data);
+        const data = await res.json();
+        setData(data);
       } catch (err) {
-        console.log(err);
         const msg =
           err instanceof Error
             ? err.message
@@ -55,6 +54,7 @@ export default function HistoryPage() {
     };
     fetchPosts();
   }, [status, session]);
+  console.log(data);
   if (loading || status == "loading") {
     return <HistoryLoading />;
   }
@@ -74,13 +74,44 @@ export default function HistoryPage() {
           View and manage all your generated content
         </p>
       </div>
-      (
+
       <div className="grid gap-3">
-        {posts.map((item) => (
-          <GenerationCard key={item.id} item={item} />
-        ))}
+        {data?.total > 0 ? (
+          data?.posts.map((item) => (
+            <GenerationCard key={item.id} item={item} />
+          ))
+        ) : (
+          <Card className="border-dashed">
+            <CardContent className="py-12 text-center">
+              <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
+                <FolderOpen className="h-6 w-6 text-muted-foreground" />
+              </div>
+              <h3 className="font-medium mb-1">No results found</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                {searchQuery
+                  ? "Try a different search term"
+                  : "Start creating content to see it here"}
+              </p>
+              {!searchQuery && (
+                <div className="flex gap-2 justify-center">
+                  <Button size="sm" asChild>
+                    <Link href="/generate/blog">
+                      <FileText className="h-4 w-4 mr-2" />
+                      Create Blog
+                    </Link>
+                  </Button>
+                  <Button size="sm" variant="outline" asChild>
+                    <Link href="/generate/video">
+                      <Video className="h-4 w-4 mr-2" />
+                      Upload Video
+                    </Link>
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
-      )
     </div>
   );
 }

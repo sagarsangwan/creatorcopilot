@@ -7,11 +7,62 @@ import { Button } from "@/components/ui/button";
 import { GenerationCard } from "@/components/dashboard/generation-card";
 import { mockData, user } from "@/lib/mock-data";
 import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import DashboardLoading from "./loading";
+import HistoryLoading from "../history/loading";
 
 export default function DashboardPage() {
   const recentItems = mockData.slice(0, 4);
-  const { data: session } = useSession();
+  const [data, setData] = useState();
+  const { data: session, status } = useSession();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
+  useEffect(() => {
+    const fetchLatestPosts = async () => {
+      if (status !== "authenticated") return;
+      try {
+        setLoading(true);
+        setError("");
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/?limit=2`,
+          {
+            headers: {
+              Authorization: `Bearer ${session?.access_token}`,
+            },
+          }
+        );
+        if (!res.ok) {
+          const errorBody = await res.json();
+          console.log(errorBody);
+          throw new Error(errorBody?.detail || "Failed to load details");
+        }
+        const result = await res.json();
+        setData(result);
+      } catch (err) {
+        const msg =
+          err instanceof Error ? err.message : "Failed To Fetch Recent Posts";
+        setError(msg);
+        toast.error(msg);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchLatestPosts();
+  }, [status, session]);
+  console.log(data);
+  if (status == "loading") {
+    return <DashboardLoading />;
+  }
+  if (error) {
+    return (
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">History</h1>
+        <p className="text-muted-foreground mt-1">{error}</p>
+      </div>
+    );
+  }
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       {/* Welcome Section */}
@@ -90,8 +141,11 @@ export default function DashboardPage() {
             </Link>
           </Button>
         </div>
-
-        {recentItems.length === 0 ? (
+        {loading ? (
+          <HistoryLoading />
+        ) : error ? (
+          <div>error</div>
+        ) : data?.total === 0 ? (
           <Card className="border-dashed">
             <CardContent className="py-12 text-center">
               <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
@@ -119,7 +173,7 @@ export default function DashboardPage() {
           </Card>
         ) : (
           <div className="grid gap-3">
-            {recentItems.map((item) => (
+            {data?.posts.map((item) => (
               <GenerationCard key={item.id} item={item} />
             ))}
           </div>

@@ -63,24 +63,33 @@ def list_media(request):
     return Response(res.json(), status=res.status_code)
 
 
-@api_view(["POST"])
+@api_view(["POST", "GET"])
 @permission_classes([IsAuthenticated])
-def content_post_view(request):
+def content_post_list_create(request):
     headers = {
         "X-User-Id": str(request.user.id),
         "X-User-Email": request.user.email,
         "Content-Type": "application/json",
     }
 
-    payload = request.data
-    res = requests.post(
-        f"{CONTENT_BASE}/api/v1/content/posts",
-        headers=headers,
-        json=payload,
-        timeout=10,
-    )
+    if request.method == "POST":
+        payload = request.data
+        res = requests.post(
+            f"{CONTENT_BASE}/api/v1/content/posts",
+            headers=headers,
+            json=payload,
+            timeout=10,
+        )
 
-    return Response(data=res.json(), status=res.status_code)
+        return Response(data=res.json(), status=res.status_code)
+    if request.method == "GET":
+        res = requests.get(
+            f"{CONTENT_BASE}/api/v1/content/posts",
+            headers=headers,
+            params=request.GET,
+            timeout=10,
+        )
+        return Response(data=res.json(), status=res.status_code)
 
 
 @api_view(["GET"])
@@ -101,9 +110,7 @@ def get_content_detais(request, content_id):
     return Response(data=res.json(), status=res.status_code)
 
 
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def get_all_posts(request):
-    print("helloooo,,,,,,,,,,,,,,,,,'''''''''''''''''", flush=True)
-    res = requests.get(f"{CONTENT_BASE}/api/v1/content/posts", timeout=10)
-    return Response(data=res.json(), status=res.status_code)
+# @api_view(["GET"])
+# @permission_classes([IsAuthenticated])
+# def get_all_posts(request):
+#     print("helloooo,,,,,,,,,,,,,,,,,'''''''''''''''''", flush=True)

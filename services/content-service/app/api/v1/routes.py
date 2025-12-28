@@ -8,6 +8,7 @@ from app.schemas.content_post_schemas import (
     ContentDetailResponse,
     ContentListResponse,
 )
+from typing import Optional
 from app.models.content import ContentPost, ContentStatus
 from app.models.jobs import ContentJob, JobStatus
 from datetime import datetime
@@ -54,10 +55,21 @@ def posts(
 
 @router.get("/posts", response_model=ContentListResponse)
 def get_all_posts(
-    user_id: str = Depends(get_current_user), db: Session = Depends(get_db)
+    limit: Optional[int] = None,
+    offset: int = 0,
+    user_id: str = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
-    content_posts = db.query(ContentPost).filter(ContentPost.user_id == user_id).all()
-    return ContentListResponse(total=len(posts), posts=content_posts)
+    query = db.query(ContentPost).filter(ContentPost.user_id == user_id)
+    total_count = query.count()
+
+    query = query.order_by(ContentPost.created_at.desc())
+    if limit is not None:
+        query = query.offset(offset).limit(limit)
+
+    content_posts = query.all()
+
+    return ContentListResponse(total=len(content_posts), posts=content_posts)
 
 
 @router.get("/posts/{content_id}", response_model=ContentDetailResponse)

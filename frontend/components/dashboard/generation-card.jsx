@@ -35,7 +35,7 @@ export function GenerationCard({ item }) {
               <StatusPill status={item.status} />
             </div>
             <p className="text-xs text-muted-foreground">
-              {formatDate(item.createdAt)}
+              {formatDate(item.created_at)}
             </p>
           </div>
           <Button

@@ -9,6 +9,7 @@ from sqlalchemy import (
     Integer,
     Boolean,
 )
+from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.sql import func
 import enum
@@ -34,7 +35,7 @@ class GeneratedAsset(Base):
         nullable=False,
         index=True,
     )
-
+    content = relationship("ContentPost", back_populates="assets")
     job_id = Column(
         UUID(as_uuid=True),
         ForeignKey("content_jobs.id", ondelete="CASCADE"),
