@@ -1,0 +1,11 @@
+PLATFORM: X (Twitter)
+
+CAPTION RULES:
+- Max 280 characters.
+- Punchy and direct.
+- 1–2 hashtags max.
+- No emojis unless essential.
+
+METADATA:
+- hashtags
+- cta

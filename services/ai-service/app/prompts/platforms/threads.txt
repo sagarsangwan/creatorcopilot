@@ -1,0 +1,10 @@
+PLATFORM: Threads
+
+CAPTION RULES:
+- Casual and friendly.
+- Emojis allowed.
+- Conversational tone.
+
+METADATA:
+- hashtags
+- cta

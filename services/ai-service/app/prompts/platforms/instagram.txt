@@ -1,0 +1,14 @@
+PLATFORM: Instagram
+
+CAPTION RULES:
+- Friendly and engaging tone.
+- Emojis allowed (max 4).
+- No links in caption.
+- Hashtags go ONLY in metadata.
+- Caption should feel natural, not salesy.
+
+METADATA:
+- hashtags: array of strings
+- first_comment: short engagement line
+- cta: optional
+

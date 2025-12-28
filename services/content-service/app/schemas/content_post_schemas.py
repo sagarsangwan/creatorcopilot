@@ -28,50 +28,40 @@ class ContentGenerateResponse(BaseModel):
     # created_at: datetime
 
 
-# class ContentCreateSchema(BaseModel):
-#     title: str
-#     content: str
-#     ctaLink: str
-#     language: str = "en"
-#     tone: str
-#     audience: str
-#     content_goal: str
-#     keywords: Optional[List[str]] = []
-#     platforms: Optional[List[str]] = None
-
-
-# class ContentCreateResponseSchema(BaseModel):
-#     id: str
-#     status: str
-#     created_at: datetime
-
-
-class ContentDetailSchema(BaseModel):
+class ContentBaseSchema(BaseModel):
     id: UUID
     title: str
+    status: str
+
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class ContentDetailSchema(ContentBaseSchema):
+    platforms: Optional[List[str]] = []
     content: str
     ctaLink: str
-
     language: str
     tone: Optional[str]
     audience: Optional[str]
-    content_goal: Optional[str]
-    platforms: Optional[List[str]] = []
-
     keywords: Optional[List[str]] = []
-
     ai_summary: Optional[str]
     ai_key_points: Optional[List[str]] = []
-
-    status: str
-
-    # jobs: List[JobResponseSchema]
-
-    created_at: datetime
     updated_at: datetime
 
     class Config:
         from_attributes = True
+
+
+class ContentSummarySchema(ContentBaseSchema):
+    pass
+
+
+class ContentListResponse(BaseModel):
+    total: int
+    posts: List[ContentSummarySchema]
 
 
 class JobDetailSchema(BaseModel):
@@ -93,19 +83,3 @@ class ContentDetailResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
-
-class ContentUpdateSchema(BaseModel):
-    title: Optional[str]
-    content: Optional[str]
-    ctaLink: Optional[str]
-
-    tone: Optional[str]
-    audience: Optional[str]
-    content_goal: Optional[str]
-
-    keywords: Optional[List[str]]
-
-    outline: Optional[str]
-    ai_summary: Optional[str]
-    ai_key_points: Optional[List[str]]

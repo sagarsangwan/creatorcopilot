@@ -1,0 +1,20 @@
+IMAGE TEXT RULES:
+
+- Image text is platform-independent.
+- Use short, bold, readable text.
+- Each line must be under 40 characters.
+- Avoid punctuation-heavy sentences.
+- No emojis.
+- No hashtags.
+- Use 3 to 6 slides only.
+- Each slide must communicate one idea clearly.
+
+Output format:
+
+"visuals": [
+  {
+    "slide_index": 0,
+    "headline": "",
+    "subtext": ""
+  }
+]

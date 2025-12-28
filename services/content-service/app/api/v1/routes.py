@@ -6,6 +6,7 @@ from app.schemas.content_post_schemas import (
     ContentGenerationRequest,
     ContentGenerateResponse,
     ContentDetailResponse,
+    ContentListResponse,
 )
 from app.models.content import ContentPost, ContentStatus
 from app.models.jobs import ContentJob, JobStatus
@@ -51,7 +52,15 @@ def posts(
     )
 
 
-@router.get("/posts/{content_id}")
+@router.get("/posts", response_model=ContentListResponse)
+def get_all_posts(
+    user_id: str = Depends(get_current_user), db: Session = Depends(get_db)
+):
+    content_posts = db.query(ContentPost).filter(ContentPost.user_id == user_id).all()
+    return ContentListResponse(total=len(posts), posts=content_posts)
+
+
+@router.get("/posts/{content_id}", response_model=ContentDetailResponse)
 def get_post_details(
     content_id: str,
     job_type: str,

@@ -1,0 +1,11 @@
+PLATFORM: Facebook
+
+CAPTION RULES:
+- Conversational and clear.
+- Emojis allowed (max 3).
+- No hashtags inside main text.
+- CTA allowed.
+
+METADATA:
+- hashtags
+- cta

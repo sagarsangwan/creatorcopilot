@@ -1,0 +1,11 @@
+PLATFORM: LinkedIn
+
+CAPTION RULES:
+- Professional tone.
+- No emojis unless very minimal.
+- No hashtags inside text body.
+- Keep paragraphs short.
+
+METADATA:
+- hashtags
+- cta

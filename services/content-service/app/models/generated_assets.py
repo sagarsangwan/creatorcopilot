@@ -51,7 +51,6 @@ class GeneratedAsset(Base):
 
     # Main generated text (caption / post / tweet)
     text = Column(Text, nullable=True)
-
     # Structured extras (hashtags, first_comment, hooks, etc.)
     meta_data = Column(JSONB, nullable=True)
 
@@ -59,7 +58,6 @@ class GeneratedAsset(Base):
     ai_provider = Column(String(30), nullable=False)  # gemini, openai
     model_name = Column(String(50), nullable=False)  # gemini-1.5-pro
     prompt_version = Column(String(20), nullable=False)
-
     # Execution
     status = Column(
         Enum(AssetStatus, name="asset_status"),
