@@ -47,8 +47,6 @@ class ContentDetailSchema(ContentBaseSchema):
     tone: Optional[str]
     audience: Optional[str]
     keywords: Optional[List[str]] = []
-    ai_summary: Optional[str]
-    ai_key_points: Optional[List[str]] = []
     updated_at: datetime
 
     class Config:

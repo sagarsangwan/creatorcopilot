@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 const JOB_TYPE = "GENERATE_SOCIAL_POSTS";
-const POLL_INTERVAL_MS = 2500;
+const POLL_INTERVAL_MS = 120000;
 export default function HistoryDetailPage() {
   const params = useParams();
   const contentId = params.id;
@@ -16,14 +16,14 @@ export default function HistoryDetailPage() {
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
   const jobStatus = data?.job?.status || null;
   const contentStatus = data?.content?.status || null;
-
+  console.log(data);
   const shouldPoll = useMemo(() => {
     const activeJob = jobStatus == "QUEUED" || jobStatus == "RUNNING";
     const actiContent = contentStatus == "PROCESSING";
     return activeJob || actiContent;
   }, [jobStatus, contentStatus]);
 
-  const fetchDetails = async ({ silent = False }) => {
+  const fetchDetails = async ({ silent = false }) => {
     if (!session?.access_token) {
       setLoading(false);
       return;
@@ -42,8 +42,8 @@ export default function HistoryDetailPage() {
         }
       );
       if (!res.ok) {
-        const errorBody = await res.json().catch(() => ({}));
-        throw new Error(errorBody?.message || "Failed to load details");
+        const errorBody = await res.json();
+        throw new Error(errorBody?.detail || "Failed to load details");
       }
       const json = await res.json();
       setData(json);
@@ -60,44 +60,37 @@ export default function HistoryDetailPage() {
   useEffect(() => {
     if (!contentId) return;
     if (!session?.access_token) return;
-    let interval = null;
-    let stopped = false;
-    const run = async () => {
-      await fetchDetails({ silent: false });
-      (interval = setInterval(async () => {
-        if (stopped) return;
-        await fetchDetails({ silent: true });
-      })),
-        POLL_INTERVAL_MS;
+    let timerId;
+    let isMounted = true;
+    const runpolling = async () => {
+      await fetchDetails({ silent: data !== null });
+      const scheduleNext = () => {
+        if (!isMounted) return;
+        if (shouldPoll) {
+          timerId = setTimeout(runpolling, POLL_INTERVAL_MS);
+        }
+      };
+      scheduleNext();
     };
-    run();
+    runpolling();
     return () => {
-      stopped = true;
-      if (interval) {
-        clearInterval(interval);
-      }
+      isMounted = false;
+      if (timerId) clearTimeout(timerId);
     };
-  }, [contentId, session?.access_token]);
+  }, [contentId, session?.access_token, shouldPoll]);
   useEffect(() => {
     if (!data) return;
 
-    const done =
-      jobStatus === "COMPLETED" ||
-      jobStatus === "FAILED" ||
-      contentStatus === "GENERATED" ||
-      contentStatus === "FAILED";
+    const isDone = jobStatus === "COMPLETED" || contentStatus === "GENERATED";
+    const isFailed = jobStatus === "FAILED" || contentStatus === "FAILED";
 
-    if (done) {
-      // We can show a one-time toast when it transitions to done
-      if (jobStatus === "COMPLETED" || contentStatus === "GENERATED") {
-        toast.success("Generation completed");
-      }
-      if (jobStatus === "FAILED" || contentStatus === "FAILED") {
-        toast.error("Generation failed");
-      }
+    if (isDone) {
+      toast.success("Generation completed");
+      // Optionally: do a final fetch or stop logic here
+    } else if (isFailed) {
+      toast.error("Generation failed");
     }
-  }, [data, jobStatus, contentStatus]);
-
+  }, [jobStatus, contentStatus]);
   return (
     <HistoryDetailContent
       data={data}
