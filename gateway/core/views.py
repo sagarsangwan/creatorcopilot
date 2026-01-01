@@ -110,7 +110,13 @@ def get_content_detais(request, content_id):
     return Response(data=res.json(), status=res.status_code)
 
 
-# @api_view(["GET"])
-# @permission_classes([IsAuthenticated])
-# def get_all_posts(request):
-#     print("helloooo,,,,,,,,,,,,,,,,,'''''''''''''''''", flush=True)
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_job_status(request, job_id):
+    headers = get_headers(request=request)
+    res = requests.get(
+        f"{CONTENT_BASE}/api/v1/content/job/status/{job_id}",
+        headers=headers,
+        timeout=10,
+    )
+    return Response(data=res.json(), status=res.status_code)

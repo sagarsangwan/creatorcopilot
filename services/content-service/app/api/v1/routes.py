@@ -8,6 +8,8 @@ from app.schemas.content_post_schemas import (
     ContentDetailResponse,
     ContentListResponse,
 )
+import uuid
+from app.schemas.content_jobs import JobStatusResponse
 from celery.result import AsyncResult
 from app.celery_app.celery import celery
 from typing import Optional
@@ -22,32 +24,41 @@ router = APIRouter()
 
 def get_current_user(request: Request):
     user_id = request.headers.get("X-User-Id")
-
     if not user_id:
         raise HTTPException(status_code=404, detail="Unauthorized")
     return user_id
 
 
-@router.get("/status/{id}")
-def statuss(id: str):
-    res = AsyncResult(id=id, app=celery)
+def retrive_job_status_from_db(id: str, db: Session):
 
-    result = res.state
-    ready = res.ready()
-    if (
-        res.backend.get(res.backend.get_key_for_task(id)) is None
-        and res.state == "PENDING"
-    ):
-        print(f"Task ID {id} is likely invalid or has expired from the backend.")
-    else:
-        print(f"Task ID {id} status: {res.state}")
-    print(result, flush=True)
-    if res.ready():
-        return {"task_id": id, "status": "completed", "result": res.result}
-    elif res.failed():
-        return {"task_id": id, "status": "failed"}
-    else:
-        return {"task_id": id, "status": "in progress"}
+    try:
+        id = uuid.UUID(id)
+    except ValueError:
+        raise ValueError("not valis id")
+
+    job = db.query(ContentJob).filter(ContentJob.id == id).first()
+    if not job:
+        raise LookupError("Job not exist")
+    return JobStatus(job.status)
+
+
+@router.get("/job/status/{id}")
+def job_status(
+    id: str, db: Session = Depends(get_db), user_id: str = Depends(get_current_user)
+):
+    task = AsyncResult(id=id, app=celery)
+    task_meta = task.backend.get(task.backend.get_key_for_task(id))
+    if task_meta is not None:
+        return JobStatusResponse(status=JobStatus(task.state))
+    try:
+        status = retrive_job_status_from_db(id=id, db=db)
+        return JobStatusResponse(status=status)
+    except LookupError:
+        raise HTTPException(status_code=400, detail="Job Not Found")
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid Job id Format")
+    except Exception:
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
 @router.post("/posts", response_model=ContentGenerateResponse)

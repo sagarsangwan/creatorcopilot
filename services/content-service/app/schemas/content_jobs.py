@@ -14,3 +14,7 @@ class JobResponseSchema(BaseModel):
 
 class ContentJobCreateSchema(BaseModel):
     job_type: str
+
+
+class JobStatusResponse(BaseModel):
+    status: str
