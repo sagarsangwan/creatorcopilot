@@ -56,18 +56,16 @@ class GeneratedAsset(Base):
     meta_data = Column(JSONB, nullable=True)
 
     # AI traceability
-    ai_provider = Column(String(30), nullable=False)  # gemini, openai
-    model_name = Column(String(50), nullable=False)  # gemini-1.5-pro
-    prompt_version = Column(String(20), nullable=False)
+
     # Execution
     status = Column(
         Enum(AssetStatus, name="asset_status"),
         default=AssetStatus.QUEUED,
         nullable=False,
     )
-    error = Column(Text)
-    tokens_used = Column(Integer)
-    latency_ms = Column(Integer)
+    # error = Column(Text)
+
+    # latency_ms = Column(Integer)
 
     # Versioning / lifecycle
     is_active = Column(Boolean, default=True)

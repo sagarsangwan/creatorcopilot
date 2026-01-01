@@ -34,7 +34,7 @@ def index():
 
 @app.post("/api/v1/ai-service/generate-post-captions")
 def generate_post_captions(payload: GenrateAiResponseRequest):
-    print(payload, flush=True)
+    # print(payload, flush=True)
     prompt = build_prompt(
         title=payload.title,
         content=payload.content,
@@ -47,6 +47,5 @@ def generate_post_captions(payload: GenrateAiResponseRequest):
         ctaType=payload.ctaType,
     )
     res = getblogCaptionsFromAi(blogCaptionPrompt=prompt)
-    print(res, flush=True)
 
     return res

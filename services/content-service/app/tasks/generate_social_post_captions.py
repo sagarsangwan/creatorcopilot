@@ -6,28 +6,32 @@ from app.models.content import ContentPost, ContentStatus
 from app.models.jobs import JobStatus, ContentJob
 import requests
 import time
+from uuid import UUID
 
 logger = get_task_logger(__name__)
 AI_SERVICE_URL = settings.AI_SERVICE_URL
 
 
-# name="content.generate_social_post_captions",
 @celery.task(
     name="content.generate_social_post_captions",
     bind=True,
     max_retries=3,
     track_started=True,
 )
-def generate_social_post_captions(content_id: str, job_id: str, self):
+def generate_social_post_captions(content_id: UUID, job_id: UUID, self):
     db = SessionLocal()
     try:
+        time.sleep(12)
         content = db.query(ContentPost).filter(ContentPost.id == content_id).first()
         job = db.query(ContentJob).filter(ContentJob.id == job_id).first()
-        if not job or not content:
-            raise Exception("Job Or Content Not Found")
-        job.status = JobStatus.RUNNING
+        if not job:
+            raise Exception("Job not found")
+        if not content:
+            raise Exception("Content not found")
+        job.status = JobStatus.STARTED
         content.status = ContentStatus.PROCESSING
         db.commit()
+        self.update_state(state=JobStatus.STARTED, meta={"progress": 20})
         payload = {
             "title": content.title,
             "content": content.content,
@@ -35,7 +39,7 @@ def generate_social_post_captions(content_id: str, job_id: str, self):
             "tone": content.tone,
             "audience": content.audience,
             "content_goal": content.content_goal,
-            "platforms": content.platforms,  # if you have
+            "platforms": content.platforms,
             "keywords": content.keywords,
             "language": content.language,
         }
@@ -44,15 +48,27 @@ def generate_social_post_captions(content_id: str, job_id: str, self):
             json=payload,
             timeout=120,
         )
+        self.update_state(state=JobStatus.STARTED, meta={"progress": 70})
         if res.status_code != 200:
-            raise Exception(f"Ai service failed : {res.status_code} {res.text}")
+            raise RuntimeError(f"Ai service failed : {res.status_code} {res.text}")
         result = res.json()
 
-        return
-    except Exception as e:
-        return
-    print("beforeeeeeeeeeeeeeeeeee sleepppppppppppppppppppp", flush=True)
+        job.status = JobStatus.SUCCESS
+        content.status = ContentStatus.GENERATED
+        db.commit()
+        self.update_state(state=JobStatus.STARTED, meta={"progress": 80})
 
-    time.sleep(30)
-    print("after sleepppppppppppppppppppp", flush=True)
-    return {"message", "donetaskkkkkkkkkkkkkkk"}
+        return result
+    except requests.RequestException as e:
+        logger.warning(f"retrying {self.request.retries+1} due to request error  : {e}")
+        job.retries = self.request.retries + 1
+        job.status = JobStatus.RETRY
+        db.commit()
+        raise self.retry(exc=e)
+    except Exception as e:
+        job.status = JobStatus.FAILURE
+        job.error = str(e)
+        db.commit()
+        raise e
+    finally:
+        db.close()

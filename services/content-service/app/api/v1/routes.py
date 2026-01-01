@@ -68,28 +68,27 @@ def posts(
     db: Session = Depends(get_db),
 ):
 
-    # data_for_content = payload.model_dump(exclude={"job_type"})
-    # newContent = ContentPost(
-    #     **data_for_content, user_id=user_id, status=ContentStatus.PROCESSING
-    # )
-    # db.add(newContent)
-    # db.flush()
-
-    # new_job = ContentJob(
-    #     content_post_id=newContent.id,
-    #     job_type=payload.job_type,
-    #     status=JobStatus.QUEUED,
-    # )
-    # db.add(new_job)
-    # db.commit()
-    # db.refresh(newContent)
-    # db.refresh(new_job)
-    # generate_social_post_captions.delay(content_id="1", job_id="1")
-    generate_social_post_captions.apply_async(("1", "2"), task_id="2")
-
-    return ContentGenerateResponse(
-        content_id=str(1), status="new_job.status", job_id=str(1)
+    data_for_content = payload.model_dump(exclude={"job_type"})
+    newContent = ContentPost(
+        **data_for_content, user_id=user_id, status=ContentStatus.PROCESSING
     )
+    db.add(newContent)
+    db.flush()
+
+    new_job = ContentJob(
+        content_post_id=newContent.id,
+        job_type=payload.job_type,
+        status=JobStatus.QUEUED,
+    )
+    db.add(new_job)
+    db.commit()
+    db.refresh(newContent)
+    db.refresh(new_job)
+    generate_social_post_captions.apply_async((newContent.id, new_job.id), task_id="2")
+
+    # return ContentGenerateResponse(
+    #     content_id=str(1), status="new_job.status", job_id=str(1)
+    # )
     return ContentGenerateResponse(
         content_id=str(newContent.id), status=new_job.status, job_id=str(new_job.id)
     )
