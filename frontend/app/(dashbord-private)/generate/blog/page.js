@@ -59,8 +59,8 @@ export default function GenerateBlogPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [formData, setFormData] = useState({
-    title: "",
-    content: "",
+    title: "titleee",
+    content: "contentttt",
     keywords: [],
     outline: "",
     tone: "professional",
@@ -110,9 +110,11 @@ export default function GenerateBlogPage() {
       toast.success(
         "Successfully Uploaded Data to AI Model You Will Be Redireccted To Detail Page"
       );
-      if (data.content_id) {
-        router.push(`/history/${data.content_id}`);
-      }
+      // if (data.content_id) {
+      //   router.push(`/history/${data.content_id}`);
+      // }
+
+      console.log(data.content_id);
     } catch (e) {
       console.error("Generation Error:", e);
       toast.error(e instanceof Error ? e.message : "A network error occurred");

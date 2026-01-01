@@ -16,9 +16,9 @@ celery.conf.update(
     result_serializer="json",
     timezone="Asia/Kolkata",
     enable_utc=False,
-    task_track_started=True,
-    worker_prefetch_multiplier=1,
-    task_acks_late=True,
+    # task_track_started=True,
+    # worker_prefetch_multiplier=1,
+    # task_acks_late=True,
 )
 
-celery.autodiscover_tasks(["app"])
+# celery.autodiscover_tasks(["app"])

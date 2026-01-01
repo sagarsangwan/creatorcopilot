@@ -2,8 +2,14 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/dashboard/sidebar";
 import { Topbar } from "@/components/dashboard/topbar";
 import { Toaster } from "sonner";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
-export default function DashboardLayout({ children }) {
+export default async function DashboardLayout({ children }) {
+  const session = await auth();
+  if (!session?.user) {
+    return redirect("/");
+  }
   return (
     <SidebarProvider>
       <AppSidebar />

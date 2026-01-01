@@ -5,12 +5,19 @@ from app.core.database import SessionLocal
 from app.models.content import ContentPost, ContentStatus
 from app.models.jobs import JobStatus, ContentJob
 import requests
+import time
 
 logger = get_task_logger(__name__)
 AI_SERVICE_URL = settings.AI_SERVICE_URL
 
 
-@celery.task(name="content.generate_social_post_captions", bind=True, max_retries=3)
+# name="content.generate_social_post_captions",
+@celery.task(
+    name="content.generate_social_post_captions",
+    bind=True,
+    max_retries=3,
+    track_started=True,
+)
 def generate_social_post_captions(content_id: str, job_id: str, self):
     db = SessionLocal()
     try:
@@ -44,3 +51,8 @@ def generate_social_post_captions(content_id: str, job_id: str, self):
         return
     except Exception as e:
         return
+    print("beforeeeeeeeeeeeeeeeeee sleepppppppppppppppppppp", flush=True)
+
+    time.sleep(30)
+    print("after sleepppppppppppppppppppp", flush=True)
+    return {"message", "donetaskkkkkkkkkkkkkkk"}

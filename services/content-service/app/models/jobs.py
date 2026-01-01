@@ -8,11 +8,15 @@ import enum
 from app.core.database import Base
 
 
+import enum
+
+
 class JobStatus(str, enum.Enum):
-    QUEUED = "QUEUED"
-    RUNNING = "RUNNING"
-    COMPLETED = "COMPLETED"
-    FAILED = "FAILED"
+    PENDING = "PENDING"
+    STARTED = "STARTED"
+    RETRY = "RETRY"
+    FAILURE = "FAILURE"
+    SUCCESS = "SUCCESS"
 
 
 class ContentJob(Base):
@@ -29,12 +33,12 @@ class ContentJob(Base):
 
     job_type = Column(String(50), nullable=False)
     status = Column(
-        Enum(JobStatus, name="job_status"), default=JobStatus.QUEUED, nullable=False
+        Enum(JobStatus, name="job_status"), default=JobStatus.PENDING, nullable=False
     )
 
     retries = Column(Integer, default=0)
     error = Column(Text)
-
+    # job_broker_id = Column(String, nullable=True)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
     updated_at = Column(
         TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now()
