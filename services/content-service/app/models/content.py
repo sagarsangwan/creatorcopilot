@@ -1,5 +1,5 @@
 from app.core.database import Base
-from sqlalchemy import Column, String, UUID, ARRAY, Text, Enum, TIMESTAMP
+from sqlalchemy import Column, String, UUID, ARRAY, Text, Enum, TIMESTAMP, JSON
 from sqlalchemy.sql import func
 import enum
 import uuid
@@ -47,12 +47,14 @@ class ContentPost(Base):
         default=ContentStatus.DRAFT,
         nullable=False,
     )
-
+    jobs = relationship(
+        "ContentJob", back_populates="post", cascade="all, delete-orphan"
+    )
     visuals = relationship(
-        "VisualAsset", back_populates="content", cascade="all, delete-orphan"
+        "VisualAsset", back_populates="post", cascade="all, delete-orphan"
     )
     assets = relationship(
-        "GeneratedAsset", back_populates="content", cascade="all, delete-orphan"
+        "GeneratedAsset", back_populates="post", cascade="all, delete-orphan"
     )
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
     updated_at = Column(

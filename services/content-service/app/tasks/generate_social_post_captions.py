@@ -4,6 +4,8 @@ from app.celery_app import celery
 from app.core.database import SessionLocal
 from app.models.content import ContentPost, ContentStatus
 from app.models.jobs import JobStatus, ContentJob
+from app.models.generated_assets import GeneratedAsset
+from app.models.visual_assest import VisualAsset
 import requests
 import time
 from uuid import UUID
@@ -52,7 +54,8 @@ def generate_social_post_captions(content_id: UUID, job_id: UUID, self):
         if res.status_code != 200:
             raise RuntimeError(f"Ai service failed : {res.status_code} {res.text}")
         result = res.json()
-
+        for asset in result.get("assets"):
+            asset_ = GeneratedAsset()
         job.status = JobStatus.SUCCESS
         content.status = ContentStatus.GENERATED
         db.commit()
