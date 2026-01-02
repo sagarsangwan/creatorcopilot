@@ -47,8 +47,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               },
             }
           );
-
-          // Store the Django tokens in the account object
           account.meta = response.data;
           return true;
         } catch (error) {
@@ -56,6 +54,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             "Error during Google sign in:",
             error.response?.data || error.message
           );
+          console.log(error, "//////////////////////////////////dddddddd");
           return false;
         }
       }
@@ -93,6 +92,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             // token.refresh_token = response.data.refresh;
             token.ref = getCurrentEpochTime() + BACKEND_ACCESS_TOKEN_LIFETIME;
           } else {
+            console.log(response, "/////////");
             console.error(
               "Invalid refresh token response format:",
               response.data
@@ -100,16 +100,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             return { ...token, error: "InvalidRefreshResponse" };
           }
         } catch (error) {
-          console.error(
-            "Error refreshing token:",
-            error.response?.data || error.message
-          );
+          if (error?.message === "connect ECONNREFUSED 127.0.0.1:8000") {
+            return {
+              ...token,
+              access_token: null,
+              refresh_token: null,
+              user: null,
+              error: "Backend Not Respnsive",
+            };
+          }
           // If refresh token is invalid, clear the tokens to force re-authentication
           if (error.response?.status === 401) {
             return {
               ...token,
               access_token: null,
               refresh_token: null,
+              user: null,
               error: "RefreshAccessTokenError",
             };
           }
