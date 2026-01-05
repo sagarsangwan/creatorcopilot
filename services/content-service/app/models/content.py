@@ -40,7 +40,7 @@ class ContentPost(Base):
     audience = Column(String(100))
     content_goal = Column(String(50))
 
-    keywords = Column(ARRAY(String), nullable=True)
+    # keywords = Column(ARRAY(String), nullable=True)
     platforms = Column(ARRAY(String), nullable=True)
     status = Column(
         Enum(ContentStatus, name="content_status"),

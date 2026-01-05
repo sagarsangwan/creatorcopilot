@@ -39,6 +39,7 @@ class ContentJob(Base):
     status = Column(
         Enum(JobStatus, name="job_status"), default=JobStatus.PENDING, nullable=False
     )
+    progress = Column(Integer, default=0)
     retries = Column(Integer, default=0)
     error = Column(Text)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())

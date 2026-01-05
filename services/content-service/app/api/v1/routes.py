@@ -39,7 +39,7 @@ def retrive_job_status_from_db(id: str, db: Session):
     job = db.query(ContentJob).filter(ContentJob.id == id).first()
     if not job:
         raise LookupError("Job not exist")
-    return JobStatus(job.status)
+    return JobStatusResponse(status=JobStatus(job.status), progress=job.progress)
 
 
 @router.get("/job/status/{id}")
@@ -48,11 +48,14 @@ def job_status(
 ):
     task = AsyncResult(id=id, app=celery)
     task_meta = task.backend.get(task.backend.get_key_for_task(id))
+    print(task)
     if task_meta is not None:
-        return JobStatusResponse(status=JobStatus(task.state))
+        return JobStatusResponse(
+            status=JobStatus(task.state, progress=task.meta.progress)
+        )
     try:
         status = retrive_job_status_from_db(id=id, db=db)
-        return JobStatusResponse(status=status)
+        return status
     except LookupError:
         raise HTTPException(status_code=400, detail="Job Not Found")
     except ValueError:
@@ -68,7 +71,7 @@ def posts(
     db: Session = Depends(get_db),
 ):
 
-    data_for_content = payload.model_dump(exclude={"job_type"})
+    data_for_content = payload.model_dump(exclude={"job_type", "version"})
     newContent = ContentPost(
         **data_for_content, user_id=user_id, status=ContentStatus.PROCESSING
     )
@@ -78,17 +81,16 @@ def posts(
     new_job = ContentJob(
         content_post_id=newContent.id,
         job_type=payload.job_type,
-        status=JobStatus.QUEUED,
+        status=JobStatus.PENDING,
     )
     db.add(new_job)
     db.commit()
     db.refresh(newContent)
     db.refresh(new_job)
-    generate_social_post_captions.apply_async((newContent.id, new_job.id), task_id="2")
+    generate_social_post_captions.apply_async(
+        (newContent.id, new_job.id), task_id=new_job.id
+    )
 
-    # return ContentGenerateResponse(
-    #     content_id=str(1), status="new_job.status", job_id=str(1)
-    # )
     return ContentGenerateResponse(
         content_id=str(newContent.id), status=new_job.status, job_id=str(new_job.id)
     )

@@ -13,3 +13,4 @@ class GenrateAiResponseRequest(BaseModel):
     audience: Optional[str] = None
     content_goal: Optional[str] = None
     platforms: Optional[List[str]] = None
+    keywords: Optional[List[str]] = None

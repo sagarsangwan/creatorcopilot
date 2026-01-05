@@ -111,7 +111,7 @@ def get_content_detais(request, content_id):
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def get_job_status(request, job_id):
     headers = get_headers(request=request)
     res = requests.get(

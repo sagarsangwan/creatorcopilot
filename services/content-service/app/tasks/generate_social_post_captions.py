@@ -6,9 +6,11 @@ from app.models.content import ContentPost, ContentStatus
 from app.models.jobs import JobStatus, ContentJob
 from app.models.generated_assets import GeneratedAsset
 from app.models.visual_assest import VisualAsset
+from app.schemas.ai_service import AIServiceResponse
 import requests
 import time
 from uuid import UUID
+from typing import cast
 
 logger = get_task_logger(__name__)
 AI_SERVICE_URL = settings.AI_SERVICE_URL
@@ -23,7 +25,7 @@ AI_SERVICE_URL = settings.AI_SERVICE_URL
 def generate_social_post_captions(content_id: UUID, job_id: UUID, self):
     db = SessionLocal()
     try:
-        time.sleep(12)
+
         content = db.query(ContentPost).filter(ContentPost.id == content_id).first()
         job = db.query(ContentJob).filter(ContentJob.id == job_id).first()
         if not job:
@@ -32,8 +34,10 @@ def generate_social_post_captions(content_id: UUID, job_id: UUID, self):
             raise Exception("Content not found")
         job.status = JobStatus.STARTED
         content.status = ContentStatus.PROCESSING
-        db.commit()
+
         self.update_state(state=JobStatus.STARTED, meta={"progress": 20})
+        job.progress = 20
+        db.commit()
         payload = {
             "title": content.title,
             "content": content.content,
@@ -42,7 +46,6 @@ def generate_social_post_captions(content_id: UUID, job_id: UUID, self):
             "audience": content.audience,
             "content_goal": content.content_goal,
             "platforms": content.platforms,
-            "keywords": content.keywords,
             "language": content.language,
         }
         res = requests.post(
@@ -51,26 +54,62 @@ def generate_social_post_captions(content_id: UUID, job_id: UUID, self):
             timeout=120,
         )
         self.update_state(state=JobStatus.STARTED, meta={"progress": 70})
+        job.progress = 70
+        db.commit()
         if res.status_code != 200:
             raise RuntimeError(f"Ai service failed : {res.status_code} {res.text}")
-        result = res.json()
-        for asset in result.get("assets"):
-            asset_ = GeneratedAsset()
+        result = AIServiceResponse(**res.json())
+
+        # job relaed data
+        job.ai_provider = result.ai_provider
+        job.model_version = result.model_version
+        job.prompt_version = result.prompt_version
+        job.usage_metadata = result.usage_metadata
+
+        for asset in result.assets:
+            new_assest = GeneratedAsset(
+                content_post_id=content_id,
+                job_id=job_id,
+                platform=asset.platform,
+                text=asset.text,
+                meta_data=asset.meta_data,
+            )
+            db.add(new_assest)
+            db.commit()
+        self.update_state(state=JobStatus.STARTED, meta={"progress": 80})
+        job.progress = 80
+        db.commit()
+        for visual in result.visuals:
+            new_visual = VisualAsset(
+                content_post_id=content_id,
+                job_id=job_id,
+                slide_index=visual.slide_index,
+                headline=visual.headline,
+                subtext=visual.subtext,
+            )
+            db.add(new_visual)
+            db.commit()
+
+        self.update_state(state=JobStatus.STARTED, meta={"progress": 90})
+        job.progress = 90
         job.status = JobStatus.SUCCESS
         content.status = ContentStatus.GENERATED
         db.commit()
-        self.update_state(state=JobStatus.STARTED, meta={"progress": 80})
-
+        self.update_state(state=JobStatus.STARTED, meta={"progress": 100})
+        job.progress = 100
+        db.commit()
         return result
     except requests.RequestException as e:
         logger.warning(f"retrying {self.request.retries+1} due to request error  : {e}")
         job.retries = self.request.retries + 1
         job.status = JobStatus.RETRY
+
         db.commit()
         raise self.retry(exc=e)
     except Exception as e:
         job.status = JobStatus.FAILURE
         job.error = str(e)
+
         db.commit()
         raise e
     finally:

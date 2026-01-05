@@ -15,8 +15,8 @@ class ContentGenerationRequest(BaseModel):
     tone: Optional[str] = None
     audience: Optional[str] = None
     content_goal: Optional[str] = None
-
-    keywords: Optional[List[str]] = None
+    version: int
+    # keywords: Optional[List[str]] = None
     platforms: Optional[List[str]] = None
     job_type: str  # e.g. "GENERATE_SOCIAL_POSTS"
 

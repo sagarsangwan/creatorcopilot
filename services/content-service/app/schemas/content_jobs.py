@@ -18,3 +18,4 @@ class ContentJobCreateSchema(BaseModel):
 
 class JobStatusResponse(BaseModel):
     status: str
+    progress: int
