@@ -10,13 +10,20 @@ from app.core.database import Base
 
 import enum
 
+# class JobStatus(str, enum.Enum):
+#     PENDING = "PENDING"
+#     STARTED = "STARTED"
+#     RETRY = "RETRY"
+#     FAILURE = "FAILURE"
+#     SUCCESS = "SUCCESS"
+
 
 class JobStatus(str, enum.Enum):
-    PENDING = "PENDING"
-    STARTED = "STARTED"
-    RETRY = "RETRY"
-    FAILURE = "FAILURE"
-    SUCCESS = "SUCCESS"
+    PENDING = "pending"
+    STARTED = "started"
+    RETRY = "retry"
+    FAILURE = "failure"
+    SUCCESS = "success"
 
 
 class ContentJob(Base):
@@ -37,7 +44,9 @@ class ContentJob(Base):
     prompt_version = Column(String(20), nullable=True)
     usage_metadata = Column(JSON, nullable=True)
     status = Column(
-        Enum(JobStatus, name="job_status"), default=JobStatus.PENDING, nullable=False
+        Enum(JobStatus, name="job_status", native_enum=True, create_type=False),
+        default=JobStatus.PENDING,
+        nullable=False,
     )
     progress = Column(Integer, default=0)
     retries = Column(Integer, default=0)

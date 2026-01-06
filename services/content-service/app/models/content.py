@@ -6,21 +6,38 @@ import uuid
 from sqlalchemy.orm import relationship
 
 
+# class ContentStatus(str, enum.Enum):
+#     DRAFT = "DRAFT"
+#     PROCESSING = "PROCESSING"
+#     GENERATED = "GENERATED"
+#     FAILED = "FAILED"
+
+
+# class CtaType(str, enum.Enum):
+#     READ_BLOG = "READ_BLOG"
+#     VISITWEBSITE = "VISIT_WEBSITE"
+#     SIGN_UP = "SIGN_UP"
+#     LEARN_MORE = "LEARN_MORE"
+#     WATCH_VIDEO = "WATCH_VIDEO"
+#     DOWNLOAD = "DOWNLOAD"
+#     NONE = "NONE"
+
+
 class ContentStatus(str, enum.Enum):
-    DRAFT = "DRAFT"
-    PROCESSING = "PROCESSING"
-    GENERATED = "GENERATED"
-    FAILED = "FAILED"
+    DRAFT = "draft"
+    PROCESSING = "processing"
+    GENERATED = "generated"
+    FAILED = "failed"
 
 
 class CtaType(str, enum.Enum):
-    READ_BLOG = "READ_BLOG"
-    VISITWEBSITE = "VISIT_WEBSITE"
-    SIGN_UP = "SIGN_UP"
-    LEARN_MORE = "LEARN_MORE"
-    WATCH_VIDEO = "WATCH_VIDEO"
-    DOWNLOAD = "DOWNLOAD"
-    NONE = "NONE"
+    READ_BLOG = "read_blog"
+    VISITWEBSITE = "visit_website"
+    SIGN_UP = "sign_up"
+    LEARN_MORE = "learn_more"
+    WATCH_VIDEO = "watch_video"
+    DOWNLOAD = "download"
+    NONE = "none"
 
 
 class ContentPost(Base):

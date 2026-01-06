@@ -54,15 +54,6 @@ class ContentDetailSchema(ContentBaseSchema):
         from_attributes = True
 
 
-class ContentSummarySchema(ContentBaseSchema):
-    pass
-
-
-class ContentListResponse(BaseModel):
-    total: int
-    posts: List[ContentSummarySchema]
-
-
 class JobDetailSchema(BaseModel):
     id: UUID
     job_type: str
@@ -82,3 +73,12 @@ class ContentDetailResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ContentSummarySchema(ContentBaseSchema):
+    pass
+
+
+class ContentListResponse(BaseModel):
+    total: int
+    posts: List[ContentSummarySchema]

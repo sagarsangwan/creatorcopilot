@@ -9,6 +9,7 @@ from app.schemas.content_post_schemas import (
     ContentListResponse,
 )
 import uuid
+from sqlalchemy import exc
 from app.schemas.content_jobs import JobStatusResponse
 from celery.result import AsyncResult
 from app.celery_app.celery import celery
@@ -39,6 +40,7 @@ def retrive_job_status_from_db(id: str, db: Session):
     job = db.query(ContentJob).filter(ContentJob.id == id).first()
     if not job:
         raise LookupError("Job not exist")
+    print(job, "jobbbbbbbbbbbbbbbbbbb")
     return JobStatusResponse(status=JobStatus(job.status), progress=job.progress)
 
 
@@ -48,11 +50,10 @@ def job_status(
 ):
     task = AsyncResult(id=id, app=celery)
     task_meta = task.backend.get(task.backend.get_key_for_task(id))
-    print(task)
+    print(task.info or {}, ";;;;;", flush=True)
     if task_meta is not None:
-        return JobStatusResponse(
-            status=JobStatus(task.state, progress=task.meta.progress)
-        )
+        meta = task.info or {}
+        return JobStatusResponse(status=(task.state), progress=0)
     try:
         status = retrive_job_status_from_db(id=id, db=db)
         return status
@@ -72,25 +73,34 @@ def posts(
 ):
 
     data_for_content = payload.model_dump(exclude={"job_type", "version"})
-    newContent = ContentPost(
-        **data_for_content, user_id=user_id, status=ContentStatus.PROCESSING
-    )
-    db.add(newContent)
-    db.flush()
+    try:
+        newContent = ContentPost(
+            **data_for_content, user_id=user_id, status=ContentStatus.PROCESSING
+        )
+        db.add(newContent)
+        db.flush()
 
-    new_job = ContentJob(
-        content_post_id=newContent.id,
-        job_type=payload.job_type,
-        status=JobStatus.PENDING,
-    )
-    db.add(new_job)
-    db.commit()
-    db.refresh(newContent)
-    db.refresh(new_job)
+        new_job = ContentJob(
+            content_post_id=newContent.id,
+            job_type=payload.job_type,
+            status=JobStatus.PENDING,
+        )
+        db.add(new_job)
+        db.commit()
+        db.refresh(newContent)
+        db.refresh(new_job)
+    except exc.SQLAlchemyError as e:
+        print(e, flush=True)
+        db.rollback()
+        raise HTTPException(status_code=500, detail="DataBase Error")
+
+    except Exception as e:
+        db.rollback()
+        print(e, flush=True)
+        raise HTTPException(status_code=500, detail="something went wrong")
     generate_social_post_captions.apply_async(
-        (newContent.id, new_job.id), task_id=new_job.id
+        (str(newContent.id), str(new_job.id)), task_id=str(new_job.id)
     )
-
     return ContentGenerateResponse(
         content_id=str(newContent.id), status=new_job.status, job_id=str(new_job.id)
     )
@@ -141,3 +151,27 @@ def get_post_details(
     )
 
     return ContentDetailResponse(content=content, job=job if job else None)
+
+
+@router.delete("/posts/{content_id}")
+def delete_post(
+    content_id: str,
+    user_id: str = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    try:
+        content_id = uuid.UUID(content_id)
+        post = (
+            db.query(ContentPost)
+            .filter(ContentPost.id == content_id, ContentPost.user_id == user_id)
+            .first()
+        )
+        if not post:
+            raise HTTPException(
+                status_code=404, detail="The Post you trying to delete does no exist"
+            )
+        db.delete(post)
+        db.commit()
+        return {"message": "Successfully deleted"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal server error")

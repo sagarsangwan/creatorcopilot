@@ -92,26 +92,34 @@ def content_post_list_create(request):
         return Response(data=res.json(), status=res.status_code)
 
 
-@api_view(["GET"])
+@api_view(["GET", "DELETE"])
 @permission_classes([IsAuthenticated])
 def get_content_detais(request, content_id):
     headers = get_headers(request)
-    job_type = request.query_params.get("job_type")
-    params = {}
-    if job_type:
-        params["job_type"] = job_type
-    res = requests.get(
-        f"{CONTENT_BASE}/api/v1/content/posts/{content_id}",
-        headers=headers,
-        params=params,
-        timeout=10,
-    )
+    if request.method == "GET":
+        job_type = request.query_params.get("job_type")
+        params = {}
+        if job_type:
+            params["job_type"] = job_type
+        res = requests.get(
+            f"{CONTENT_BASE}/api/v1/content/posts/{content_id}",
+            headers=headers,
+            params=params,
+            timeout=10,
+        )
 
-    return Response(data=res.json(), status=res.status_code)
+        return Response(data=res.json(), status=res.status_code)
+    if request.method == "DELETE":
+        res = requests.delete(
+            f"{CONTENT_BASE}/api/v1/content/posts/{content_id}",
+            headers=headers,
+            timeout=10,
+        )
+        return Response(data=res.json(), status=res.status_code)
 
 
 @api_view(["GET"])
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def get_job_status(request, job_id):
     headers = get_headers(request=request)
     res = requests.get(

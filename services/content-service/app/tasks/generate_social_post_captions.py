@@ -22,10 +22,13 @@ AI_SERVICE_URL = settings.AI_SERVICE_URL
     max_retries=3,
     track_started=True,
 )
-def generate_social_post_captions(content_id: UUID, job_id: UUID, self):
+def generate_social_post_captions(self, content_idd: str, job_idd: str):
     db = SessionLocal()
-    try:
 
+    job = None
+    try:
+        content_id = UUID(content_idd)
+        job_id = UUID(job_idd)
         content = db.query(ContentPost).filter(ContentPost.id == content_id).first()
         job = db.query(ContentJob).filter(ContentJob.id == job_id).first()
         if not job:
@@ -35,8 +38,9 @@ def generate_social_post_captions(content_id: UUID, job_id: UUID, self):
         job.status = JobStatus.STARTED
         content.status = ContentStatus.PROCESSING
 
-        self.update_state(state=JobStatus.STARTED, meta={"progress": 20})
+        self.update_state(state=JobStatus.STARTED.value, meta={"progress": 20})
         job.progress = 20
+        print(job.progress, "......................", flush=True)
         db.commit()
         payload = {
             "title": content.title,
@@ -48,12 +52,15 @@ def generate_social_post_captions(content_id: UUID, job_id: UUID, self):
             "platforms": content.platforms,
             "language": content.language,
         }
-        res = requests.post(
-            f"{AI_SERVICE_URL}/api/v1/ai-service/generate-post-captions",
-            json=payload,
-            timeout=120,
-        )
-        self.update_state(state=JobStatus.STARTED, meta={"progress": 70})
+        try:
+            res = requests.post(
+                f"{AI_SERVICE_URL}/api/v1/ai-service/generate-post-captions",
+                json=payload,
+                timeout=120,
+            )
+        except Exception as e:
+            raise e
+        self.update_state(state=JobStatus.STARTED.value, meta={"progress": 70})
         job.progress = 70
         db.commit()
         if res.status_code != 200:
@@ -76,7 +83,7 @@ def generate_social_post_captions(content_id: UUID, job_id: UUID, self):
             )
             db.add(new_assest)
             db.commit()
-        self.update_state(state=JobStatus.STARTED, meta={"progress": 80})
+        self.update_state(state=JobStatus.STARTED.value, meta={"progress": 80})
         job.progress = 80
         db.commit()
         for visual in result.visuals:
@@ -90,27 +97,33 @@ def generate_social_post_captions(content_id: UUID, job_id: UUID, self):
             db.add(new_visual)
             db.commit()
 
-        self.update_state(state=JobStatus.STARTED, meta={"progress": 90})
+        self.update_state(state=JobStatus.STARTED.value, meta={"progress": 90})
         job.progress = 90
         job.status = JobStatus.SUCCESS
         content.status = ContentStatus.GENERATED
         db.commit()
-        self.update_state(state=JobStatus.STARTED, meta={"progress": 100})
+        self.update_state(state=JobStatus.STARTED.value, meta={"progress": 100})
         job.progress = 100
         db.commit()
         return result
     except requests.RequestException as e:
+        print("service error", ";;;;", flush=True)
+        print(e, flush=True)
         logger.warning(f"retrying {self.request.retries+1} due to request error  : {e}")
-        job.retries = self.request.retries + 1
-        job.status = JobStatus.RETRY
+        if job is not None:
+            job.retries = self.request.retries + 1
+            job.status = JobStatus.RETRY
 
-        db.commit()
+            db.commit()
         raise self.retry(exc=e)
     except Exception as e:
-        job.status = JobStatus.FAILURE
-        job.error = str(e)
+        self.update_state(state=JobStatus.FAILURE.value, meta={"progress": 10})
 
-        db.commit()
+        if job is not None:
+            job.status = JobStatus.FAILURE
+            job.error = str(e)
+
+            db.commit()
         raise e
     finally:
         db.close()
