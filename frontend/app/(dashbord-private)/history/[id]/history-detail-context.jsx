@@ -26,10 +26,12 @@ import {
 import { StatusPill } from "@/components/dashboard/status-pill";
 import { EditableField } from "@/components/dashboard/editable-field";
 import { RightPanelActions } from "@/components/dashboard/right-panel-actions";
-import { mockData } from "@/lib/mock-data";
+
 import { toast } from "sonner";
+import { Progress } from "@/components/ui/progress";
 
 export function HistoryDetailContent({
+  progess,
   data,
   loading,
   contentStatus,
@@ -100,7 +102,10 @@ export function HistoryDetailContent({
         </CardHeader>
         <CardContent className="space-y-3">
           {loading && !data ? (
-            <div className="text-sm text-muted-foreground">Loading…</div>
+            <div className="text-sm text-muted-foreground">
+              Loading…
+              <Progress value={progess} />
+            </div>
           ) : error && !data ? (
             <div className="flex items-start gap-2 text-sm text-red-600">
               <AlertTriangle className="h-4 w-4 mt-0.5" />

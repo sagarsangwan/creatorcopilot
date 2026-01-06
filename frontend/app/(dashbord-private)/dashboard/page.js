@@ -5,7 +5,6 @@ import { FileText, Video, ArrowRight, FolderOpen } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { GenerationCard } from "@/components/dashboard/generation-card";
-import { mockData, user } from "@/lib/mock-data";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -15,7 +14,6 @@ import { PostFetchingErrorCard } from "@/components/dashboard/error/post-fetchin
 import NoPostsFoundCard from "@/components/dashboard/posts/no-posts-found-card";
 
 export default function DashboardPage() {
-  const recentItems = mockData.slice(0, 4);
   const [data, setData] = useState();
   const { data: session, status } = useSession();
   const [loading, setLoading] = useState(false);
@@ -41,6 +39,7 @@ export default function DashboardPage() {
           throw new Error(errorBody?.detail || "Failed to load details");
         }
         const result = await res.json();
+        console.log(result);
         setData(result);
       } catch (err) {
         const msg =

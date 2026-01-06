@@ -6,7 +6,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { GenerationCard } from "@/components/dashboard/generation-card";
 import { HistoryFilters } from "@/components/dashboard/history-filters";
-import { mockData } from "@/lib/mock-data";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";

@@ -46,9 +46,8 @@ const steps = [
 
 const platforms = [
   { id: "linkedin", label: "LinkedIn" },
-  { id: "twitter", label: "Twitter / X" },
+  { id: "x", label: "Twitter / X" },
   { id: "instagram", label: "Instagram" },
-  { id: "medium", label: "Medium" },
 ];
 
 export default function GenerateBlogPage() {
@@ -59,19 +58,70 @@ export default function GenerateBlogPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [formData, setFormData] = useState({
-    title: "titleee",
-    content: "contentttt",
+    title:
+      "Tired of a Messy Downloads Folder? I Built a Python Script to Fix It Forever",
+    content: `We’ve all been there. You look at your Downloads folder and it’s a digital graveyard. PDFs mixed with cat memes, random .exe installers, and three different versions of the same .zip file. It’s a mess, it kills your productivity, and honestly, it’s just stressful.
+
+I got tired of manually dragging and dropping files every Sunday, so I wrote a Python automation script to do it for me. It’s simple, it’s future-proof, and it works like a charm.
+
+Why Automate Your File Management?
+Managing files manually is a waste of time. By using a script for automated file organization, you get:
+
+Instant Searchability: Know exactly where your PDFs or Images are.
+Better Workflow: Spend less time clicking and more time doing.
+A Clean Desktop: A decluttered digital space leads to a decluttered mind.
+The “Future-Proof” Logic
+The best part about this script? You don’t have to keep fixing it. If you download a new image, it checks if an “Images” folder exists. If it does, it drops the file in. If not, it creates the folder automatically. It’s set-it-and-forget-it.
+
+The Python Code: Your Digital Janitor
+Here is the script I use. You can copy-paste this and run it on your PC or Mac.
+
+import os
+import shutil
+def organize_junk(folder_path):
+    # Mapping extensions to category folders
+    file_map = {
+        'Images': ['.jpg', '.jpeg', '.png', '.gif', '.svg'],
+        'Docs': ['.pdf', '.docx', '.txt', '.xlsx', '.pptx'],
+        'Apps': ['.exe', '.msi', '.dmg', '.pkg'],
+        'Zips': ['.zip', '.rar', '.7z', '.tar'],
+        'Media': ['.mp4', '.mp3', '.mov', '.wav']
+    }
+if not os.path.exists(folder_path):
+        print("Path not found!")
+        return
+    os.chdir(folder_path)
+    for item in os.listdir():
+        if os.path.isdir(item): continue # Skip folders
+        ext = os.path.splitext(item)[1].lower()
+        moved = False
+        for folder, extensions in file_map.items():
+            if ext in extensions:
+                if not os.path.exists(folder): os.makedirs(folder)
+                shutil.move(item, os.path.join(folder, item))
+                moved = True
+                break
+        
+        # Catch-all for unknown files
+        if not moved and ext != '':
+            if not os.path.exists('Others'): os.makedirs('Others')
+            shutil.move(item, os.path.join('Others', item))
+    print("Success! Folder organized.")
+# Run it!
+target = input("Paste folder path to clean: ")
+organize_junk(target)`,
     keywords: [],
-    outline: "",
     tone: "professional",
     audience: "medium",
-    ctaLink: "",
+    ctaLink:
+      "https://medium.com/dev-genius/tired-of-a-messy-downloads-folder-i-built-a-python-script-to-fix-it-forever-3537e0cd9259",
     platforms: ["linkedin", "twitter"],
     audience: "General Public",
     content_goal: "educational",
     job_type: "GENERATE_SOCIAL_POSTS",
     language: "en",
-    ctaType: "",
+    ctaType: "none",
+    version: 1,
   });
 
   const updateField = (field, value) => {
@@ -91,6 +141,7 @@ export default function GenerateBlogPage() {
     setLoading(true);
     try {
       toast.message("Sending Data to Ai Model Please wait ");
+      console.log(formData);
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
       const res = await fetch(`${backendUrl}/posts/`, {
         method: "POST",
@@ -110,9 +161,9 @@ export default function GenerateBlogPage() {
       toast.success(
         "Successfully Uploaded Data to AI Model You Will Be Redireccted To Detail Page"
       );
-      // if (data.content_id) {
-      //   router.push(`/history/${data.content_id}`);
-      // }
+      if (data.content_id) {
+        router.push(`/history/${data.content_id}`);
+      }
 
       console.log(data.content_id);
     } catch (e) {
@@ -309,13 +360,13 @@ export default function GenerateBlogPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem value="READ_BLOG">Read Blog</SelectItem>
-                    <SelectItem value="VISIT_WEBSITE">Visit Website</SelectItem>
-                    <SelectItem value="SIGN_UP">Sign Up</SelectItem>
-                    <SelectItem value="LEARN_MORE">Learn More</SelectItem>
-                    <SelectItem value="WATCH_VIDEO">Watch Video</SelectItem>
-                    <SelectItem value="DOWNLOAD">Download</SelectItem>
-                    <SelectItem value="NONE">None</SelectItem>
+                    <SelectItem value="read_blog">Read Blog</SelectItem>
+                    <SelectItem value="visit_website">Visit Website</SelectItem>
+                    <SelectItem value="sign_up">Sign Up</SelectItem>
+                    <SelectItem value="learn_more">Learn More</SelectItem>
+                    <SelectItem value="watch_video">Watch Video</SelectItem>
+                    <SelectItem value="download">Download</SelectItem>
+                    <SelectItem value="none">None</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
