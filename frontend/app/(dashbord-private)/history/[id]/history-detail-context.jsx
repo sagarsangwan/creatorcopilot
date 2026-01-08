@@ -57,41 +57,8 @@ export function HistoryDetailContent({
   return (
     <div className="max-w-5xl mx-auto">
       {/* Back */}
-      <Button variant="ghost" size="sm" className="mb-4" asChild>
-        <Link href="/history">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to History
-        </Link>
-      </Button>
 
       {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h1 className="text-xl font-semibold tracking-tight">
-              {data?.content?.title || "Untitled"}
-            </h1>
-            <div className="flex flex-wrap items-center gap-2 mt-3">
-              <Badge variant="outline" className="text-xs">
-                JOB: GENERATE_SOCIAL_POSTS
-              </Badge>
-              <StatusPill status={contentStatus || "—"} />
-              {jobStatus ? <StatusPill status={jobStatus} /> : null}
-            </div>
-          </div>
-
-          <div className="text-xs text-muted-foreground space-y-1 text-right">
-            <div className="flex items-center justify-end gap-1">
-              <Calendar className="h-3 w-3" />
-              <span>Created: {formatDateTime(data?.content?.created_at)}</span>
-            </div>
-            <div className="flex items-center justify-end gap-1">
-              <Clock className="h-3 w-3" />
-              <span>Updated: {formatDateTime(data?.content?.updated_at)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Status box */}
       <Card className="mb-6">

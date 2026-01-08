@@ -10,14 +10,14 @@ class ContentGenerationRequest(BaseModel):
     content: str
     ctaLink: str = None
 
-    language: str = "en"
-    ctaType: str
-    tone: Optional[str] = None
-    audience: Optional[str] = None
-    content_goal: Optional[str] = None
+    language: str
+    ctaType: str = None
+    tone: Optional[str]
+    audience: Optional[str]
+    content_goal: Optional[str]
     version: int
-    # keywords: Optional[List[str]] = None
-    platforms: Optional[List[str]] = None
+    # keywords: Optional[List[str]]
+    platforms: Optional[List[str]]
     job_type: str  # e.g. "GENERATE_SOCIAL_POSTS"
 
 
@@ -32,21 +32,23 @@ class ContentBaseSchema(BaseModel):
     id: UUID
     title: str
     status: str
-
     created_at: datetime
+    updated_at: datetime
+    platforms: List[str]
+    jobs: list[JobResponseSchema] = []
 
     class Config:
         from_attributes = True
 
 
 class ContentDetailSchema(ContentBaseSchema):
-    platforms: Optional[List[str]] = []
+    platforms: List[str] = []
     content: str
     ctaLink: str
     ctaType: str
     language: str
-    tone: Optional[str]
-    audience: Optional[str]
+    tone: str
+    audience: str
     keywords: Optional[List[str]] = []
     updated_at: datetime
 
@@ -59,6 +61,7 @@ class JobDetailSchema(BaseModel):
     job_type: str
     retries: int
     status: str
+    percentage: int
     error: Optional[str] = None
     created_at: datetime
     updated_at: datetime

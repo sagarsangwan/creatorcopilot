@@ -7,10 +7,11 @@ class GoogleLoginRequest(BaseModel):
 
 
 class UserResponse(BaseModel):
-    id: int
+    id: str
     name: str
     email: str
     picture: str | None
+    emailVerified: str
 
     class Config:
         from_attributes = True
@@ -24,3 +25,7 @@ class TokenResponse(BaseModel):
 
 class TokenRefreshRequest(BaseModel):
     refresh: str
+
+
+class TokenRefreshResponse(BaseModel):
+    access: str

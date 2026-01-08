@@ -18,6 +18,7 @@ from app.schemas.auth_schemas import (
     TokenResponse,
     GoogleLoginRequest,
     TokenRefreshRequest,
+    TokenRefreshResponse,
 )
 
 router = APIRouter()
@@ -30,6 +31,7 @@ def get_or_create_user(
     last_name: str | None,
     image_url: str | None,
     db: Session,
+    emailVerified: str,
 ) -> DBUser:
     dbuser = db.query(DBUser).filter(DBUser.email == email).first()
 
@@ -49,12 +51,13 @@ def get_or_create_user(
 async def google_login(request: GoogleLoginRequest, db: Session = Depends(get_db)):
     try:
         google_payload = decode_google_id_token_secure(request.token)
+        print(google_payload, "/////////", flush=True)
         email = google_payload.get("email")
         first_name = google_payload.get("first_name")
         last_name = google_payload.get("last_name")
         picture = google_payload.get("picture")
         full_name = google_payload.get("name")
-
+        emailVerified = google_payload.get("email_verified")
         if not email:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -66,17 +69,21 @@ async def google_login(request: GoogleLoginRequest, db: Session = Depends(get_db
             last_name=last_name,
             image_url=picture,
             db=db,
+            emailVerified=emailVerified,
         )
-        token_data = {"user_id": dbuser.id, "email": dbuser.email}
+        token_data = {"user_id": str(dbuser.id), "email": dbuser.email}
         access_token = create_access_token(token_data)
         refresh_token = create_refresh_token(token_data)
         display_name = full_name or f"{dbuser.first_name} {dbuser.last_name}"
+        print(display_name, flush=True)
         user_response = UserResponse(
-            id=dbuser.id,
+            id=str(dbuser.id),
             email=dbuser.email,
             name=display_name,
             picture=dbuser.image,
+            emailVerified=str(dbuser.emailVerified),
         )
+        print(user_response, "responseuser", flush=True)
         return TokenResponse(
             user=user_response, access=access_token, refresh=refresh_token
         )
@@ -94,7 +101,7 @@ async def google_login(request: GoogleLoginRequest, db: Session = Depends(get_db
         )
 
 
-@router.post("/auth/token/refresh", response_model=TokenResponse)
+@router.post("/auth/token/refresh/", response_model=TokenRefreshResponse)
 async def token_refresh(request: TokenRefreshRequest):
     payload = verify_refresh_token(request.refresh)
     if not payload:
@@ -104,12 +111,13 @@ async def token_refresh(request: TokenRefreshRequest):
     token_data = {"user_id": payload["user_id"], "email": payload["email"]}
     new_accessToken = create_access_token(token_data)
 
-    dummy_userResponse = UserResponse(
-        id=payload["user_id"],
-        email=payload["email"],
-        name="Refreshed User",
-        picture=None,
-    )
-    return TokenResponse(
-        user=dummy_userResponse, access=new_accessToken, refresh=request.refresh
-    )
+    # dummy_userResponse = UserResponse(
+    #     id=payload["user_id"],
+    #     email=payload["email"],
+    #     name="Refreshed User",
+    #     picture=None,
+    # )
+    # return TokenResponse(
+    #     user=dummy_userResponse, access=new_accessToken, refresh=request.refresh
+    # )
+    return TokenRefreshResponse(access=new_accessToken)

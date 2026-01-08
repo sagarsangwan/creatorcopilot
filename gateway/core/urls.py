@@ -14,7 +14,7 @@ urlpatterns = [
     path("auth/token/refresh/", refresh_token_refresh_gateway),
     path("media/initiate-upload/", initiate_upload),
     path("media/", list_media),
-    path("posts/", content_post_list_create),
-    path("posts/<str:content_id>/", get_content_detais),
-    path("job/status/<str:job_id>/", get_job_status),
+    path("content/posts/", content_post_list_create),
+    path("content/posts/<str:content_id>/", get_content_detais),
+    path("content/job/status/<str:job_id>/", get_job_status),
 ]

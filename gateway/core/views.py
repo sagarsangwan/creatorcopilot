@@ -83,6 +83,7 @@ def content_post_list_create(request):
 
         return Response(data=res.json(), status=res.status_code)
     if request.method == "GET":
+
         res = requests.get(
             f"{CONTENT_BASE}/api/v1/content/posts",
             headers=headers,

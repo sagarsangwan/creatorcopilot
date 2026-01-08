@@ -3,6 +3,7 @@
 import os
 from dotenv import load_dotenv
 from sqlalchemy import engine_from_config, pool
+from app.db.user_model import DBUser
 
 # 1. NEW IMPORTS
 from app.db.user_model import Base  # Import your Base class

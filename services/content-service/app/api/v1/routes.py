@@ -1,13 +1,14 @@
 from fastapi import APIRouter, HTTPException, Request, Depends
 import logging
 from app.core.database import get_db
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.schemas.content_post_schemas import (
     ContentGenerationRequest,
     ContentGenerateResponse,
     ContentDetailResponse,
     ContentListResponse,
 )
+
 import uuid
 from sqlalchemy import exc
 from app.schemas.content_jobs import JobStatusResponse
@@ -113,15 +114,22 @@ def get_all_posts(
     user_id: str = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    query = db.query(ContentPost).filter(ContentPost.user_id == user_id)
-    total_count = query.count()
 
+    query = db.query(ContentPost).filter(ContentPost.user_id == (user_id))
+    total_count = query.count()
     query = query.order_by(ContentPost.created_at.desc())
     if limit is not None:
         query = query.offset(offset).limit(limit)
 
-    content_posts = query.all()
-
+    # content_posts = query.all()
+    content_posts = (
+        query.options(joinedload(ContentPost.jobs))
+        .offset(offset)
+        .limit(limit if limit is not None else 100)
+        .all()
+    )
+    for i in content_posts:
+        print(i.__dict__, flush=True)
     return ContentListResponse(total=len(content_posts), posts=content_posts)
 
 

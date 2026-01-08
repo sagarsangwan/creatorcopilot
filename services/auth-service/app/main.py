@@ -3,8 +3,16 @@ from app.core.database import engine, Base
 from app.db.user_model import DBUser
 from app.api.v1 import routes
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 
-Base.metadata.create_all(bind=engine)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Create database tables
+    Base.metadata.create_all(bind=engine)
+    yield
+    # Shutdown: Clean up resources here if needed (e.g., engine.dispose())
+
 
 app = FastAPI(
     title="Auth Microservice",
