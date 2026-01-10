@@ -6,7 +6,11 @@ celery = Celery(
     "content_service",
     broker=os.getenv(settings.CELERY_BROKER_URL),
     backend=os.getenv(settings.CELERY_RESULT_BACKEND),
-    include=["app.tasks.generate_social_post_captions"],
+    include=[
+        "app.tasks.generate_social_post_captions",
+        "content.fetch_ai_response_data",
+        "content.save_ai_json_data_to_db",
+    ],
 )
 
 
@@ -16,9 +20,4 @@ celery.conf.update(
     result_serializer="json",
     timezone="Asia/Kolkata",
     enable_utc=False,
-    # task_track_started=True,
-    # worker_prefetch_multiplier=1,
-    # task_acks_late=True,
 )
-
-# celery.autodiscover_tasks(["app"])

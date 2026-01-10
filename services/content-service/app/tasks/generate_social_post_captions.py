@@ -23,13 +23,8 @@ AI_SERVICE_URL = settings.AI_SERVICE_URL
 # def update_status()
 
 
-@celery.task(
-    name="content.generate_social_post_captions",
-    bind=True,
-    max_retries=3,
-    track_started=True,
-)
-def generate_social_post_captions(self, job_id: str):
+@celery.task(name="content.generate_social_post_captions")
+def generate_social_post_captions(job_id: str):
     db = SessionLocal()
     try:
         jobId = UUID(job_id)
@@ -39,8 +34,11 @@ def generate_social_post_captions(self, job_id: str):
             raise Exception("Job not exist")
         if job.raw_ai_response is None:
             fetch_ai_response_data.delay(job_id)
-        if job.raw_ai_response is not None and job.status != JobStatus.SUCCESS:
+        elif job.raw_ai_response is not None and job.status != JobStatus.SUCCESS:
             save_ai_json_data_to_db.delay(job_id)
         return
     except Exception as e:
-        return
+        logger.exception("Orchestrator failed")
+        raise
+    finally:
+        db.close()

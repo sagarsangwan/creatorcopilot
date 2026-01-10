@@ -9,6 +9,7 @@ from app.models.generated_assets import GeneratedAsset
 from app.celery_app import celery
 from app.services.update_job_status import update_job_status
 from app.services.update_content_status import update_content_status
+from app.services.mark_job_and_content_failed import mark_job_and_content_failed
 
 
 def add_job_metadata(db, job, result: AIServiceResponse):
@@ -45,17 +46,23 @@ def add_assets(db, job_id, content_id, result: AIServiceResponse):
 @celery.task(
     name="content.save_ai_json_data_to_db", bind=True, max_retries=3, track_started=True
 )
-def save_ai_json_data_to_db(job_id: str):
+def save_ai_json_data_to_db(self, job_id: str):
     db = SessionLocal()
 
     try:
         jobId = UUID(job_id)
+        db.query(GeneratedAsset).filter_by(job_id=jobId).delete()
+        db.query(VisualAsset).filter_by(job_id=jobId).delete()
+        db.commit()
         job = db.query(ContentJob).filter(ContentJob.id == jobId).first()
         content = (
             db.query(ContentPost).filter(ContentPost.id == job.content_post_id).first()
         )
         if not job:
             raise Exception("Job not exist")
+        if not job.raw_ai_response:
+            raise Exception("AI response missing; cannot persist")
+
         ai_result = AIServiceResponse(**job.raw_ai_response)
         add_assets(
             db=db, job_id=jobId, content_id=job.content_post_id, result=ai_result
@@ -73,5 +80,9 @@ def save_ai_json_data_to_db(job_id: str):
         update_content_status(status=ContentStatus.GENERATED, db=db, content=content)
         db.commit()
         return
-    except Exception as a:
-        return
+    except Exception as e:
+        if self.request.retries >= self.max_retries:
+            mark_job_and_content_failed(db, job, content, str(e))
+            raise
+
+        raise self.retry(exc=e, countdown=15)

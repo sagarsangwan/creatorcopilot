@@ -6,10 +6,12 @@ from app.core.database import SessionLocal
 from app.models.jobs import ContentJob, JobStatus
 from uuid import UUID
 import requests
+from app.tasks.save_ai_json_to_db import save_ai_json_data_to_db
 from app.models.content import ContentPost, ContentStatus
 from app.schemas.ai_service import AIServiceResponse
 from app.services.update_job_status import update_job_status
 from app.services.update_content_status import update_content_status
+from app.services.mark_job_and_content_failed import mark_job_and_content_failed
 
 AI_SERVICE_URL = settings.AI_SERVICE_URL
 logger = get_task_logger(__name__)
@@ -50,25 +52,23 @@ def fetch_ai_response_data(self, job_id: str):
             raise requests.RequestException(
                 f"Ai service failed : {res.status_code} {res.text}"
             )
-        job.raw_ai_response(res.json())
-        job.progress(50)
+        job.raw_ai_response = res.json()
         db.commit()
+        save_ai_json_data_to_db.delay(job_id)
 
     except requests.RequestException as e:
         logger.warning(f"retrying {self.request.retries+1} due to request error  : {e}")
-        if job is not None:
-            job.retries = self.request.retries + 1
-            job.status = JobStatus.RETRY
-            db.commit()
+        job.retries = self.request.retries + 1
+        job.status = JobStatus.RETRY
+        db.commit()
         if self.request.retries >= self.max_retries:
+            mark_job_and_content_failed(db, job, content, str(e))
             raise
-        raise self.retry(exc=e)
-    except Exception as e:
 
-        if job is not None:
-            job.status = JobStatus.FAILURE
-            job.error = str(e)
-            db.commit()
-        raise e
+        raise self.retry(exc=e, countdown=30)
+    except Exception as e:
+        mark_job_and_content_failed(db, job, content, str(e))
+
+        raise
     finally:
         db.close()

@@ -7,11 +7,20 @@ def update_job_status(
     progress: int | None = None,
     status: JobStatus | None = None,
     error: str | None = None,
+    retries: int | None = None,
 ):
-    if status:
-        job.status = status
-    if progress is not None:
-        job.progress = progress
-    if error:
-        job.error = error
-    db.commit()
+    try:
+        if status is not None:
+            job.status = status
+        if progress is not None:
+            job.progress = progress
+        if retries is not None:
+            job.retries = retries
+        if error is not None:
+            job.error = error
+
+        db.commit()
+
+    except Exception:
+        db.rollback()
+        raise
