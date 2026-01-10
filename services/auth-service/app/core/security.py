@@ -48,7 +48,6 @@ def decode_token(token: str):
 
 
 def verify_refresh_token(refresh_token: str):
-    print(refresh_token)
     payload = decode_token(refresh_token)
     if payload and payload.get("type") == "refresh":
         return payload

@@ -165,7 +165,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ContentDetailResponse"
+                  "$ref": "#/components/schemas/ContentDetailSchema"
                 }
               }
             }
@@ -237,28 +237,6 @@
   },
   "components": {
     "schemas": {
-      "ContentDetailResponse": {
-        "properties": {
-          "content": {
-            "$ref": "#/components/schemas/ContentDetailSchema"
-          },
-          "job": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/JobDetailSchema"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        },
-        "type": "object",
-        "required": [
-          "content"
-        ],
-        "title": "ContentDetailResponse"
-      },
       "ContentDetailSchema": {
         "properties": {
           "id": {
@@ -285,26 +263,11 @@
             "title": "Updated At"
           },
           "platforms": {
-            "anyOf": [
-              {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Platforms",
-            "default": []
-          },
-          "jobs": {
             "items": {
-              "$ref": "#/components/schemas/JobResponseSchema"
+              "type": "string"
             },
             "type": "array",
-            "title": "Jobs",
+            "title": "Platforms",
             "default": []
           },
           "content": {
@@ -312,11 +275,25 @@
             "title": "Content"
           },
           "ctaLink": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Ctalink"
           },
           "ctaType": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Ctatype"
           },
           "language": {
@@ -324,32 +301,25 @@
             "title": "Language"
           },
           "tone": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "type": "string",
             "title": "Tone"
           },
           "audience": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "type": "string",
             "title": "Audience"
           },
           "keywords": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Keywords"
+          },
+          "assets": {
             "anyOf": [
               {
                 "items": {
-                  "type": "string"
+                  "$ref": "#/components/schemas/GeneratedAssetResponse"
                 },
                 "type": "array"
               },
@@ -357,8 +327,28 @@
                 "type": "null"
               }
             ],
-            "title": "Keywords",
-            "default": []
+            "title": "Assets"
+          },
+          "visuals": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/VisualAssetResponse"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Visuals"
+          },
+          "jobs": {
+            "items": {
+              "$ref": "#/components/schemas/JobResponseSchema"
+            },
+            "type": "array",
+            "title": "Jobs"
           }
         },
         "type": "object",
@@ -369,11 +359,7 @@
           "created_at",
           "updated_at",
           "content",
-          "ctaLink",
-          "ctaType",
-          "language",
-          "tone",
-          "audience"
+          "language"
         ],
         "title": "ContentDetailSchema"
       },
@@ -381,22 +367,24 @@
         "properties": {
           "content_id": {
             "type": "string",
+            "format": "uuid",
             "title": "Content Id"
           },
           "job_id": {
             "type": "string",
+            "format": "uuid",
             "title": "Job Id"
           },
           "status": {
             "type": "string",
-            "title": "Status"
+            "title": "Status",
+            "default": "PROCESSING"
           }
         },
         "type": "object",
         "required": [
           "content_id",
-          "job_id",
-          "status"
+          "job_id"
         ],
         "title": "ContentGenerateResponse"
       },
@@ -404,23 +392,42 @@
         "properties": {
           "title": {
             "type": "string",
+            "maxLength": 255,
+            "minLength": 5,
             "title": "Title"
           },
           "content": {
             "type": "string",
-            "title": "Content"
+            "title": "Content",
+            "description": "The source blog or text content"
           },
           "ctaLink": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Ctalink"
           },
           "language": {
             "type": "string",
-            "title": "Language"
+            "title": "Language",
+            "default": "en"
           },
           "ctaType": {
-            "type": "string",
-            "title": "Ctatype"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ctatype",
+            "default": "none"
           },
           "tone": {
             "anyOf": [
@@ -457,37 +464,28 @@
           },
           "version": {
             "type": "integer",
-            "title": "Version"
+            "title": "Version",
+            "default": 1
           },
           "platforms": {
-            "anyOf": [
-              {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
             "title": "Platforms"
           },
           "job_type": {
             "type": "string",
-            "title": "Job Type"
+            "title": "Job Type",
+            "examples": [
+              "GENERATE_SOCIAL_POSTS"
+            ]
           }
         },
         "type": "object",
         "required": [
           "title",
           "content",
-          "language",
-          "tone",
-          "audience",
-          "content_goal",
-          "version",
-          "platforms",
           "job_type"
         ],
         "title": "ContentGenerationRequest"
@@ -543,15 +541,15 @@
               "type": "string"
             },
             "type": "array",
-            "title": "Platforms"
+            "title": "Platforms",
+            "default": []
           },
           "jobs": {
             "items": {
               "$ref": "#/components/schemas/JobResponseSchema"
             },
             "type": "array",
-            "title": "Jobs",
-            "default": []
+            "title": "Jobs"
           }
         },
         "type": "object",
@@ -560,48 +558,25 @@
           "title",
           "status",
           "created_at",
-          "updated_at",
-          "platforms"
+          "updated_at"
         ],
-        "title": "ContentSummarySchema"
+        "title": "ContentSummarySchema",
+        "description": "Summarized view for lists, excludes heavy 'content' and 'assets' fields"
       },
-      "HTTPValidationError": {
+      "GeneratedAssetResponse": {
         "properties": {
-          "detail": {
-            "items": {
-              "$ref": "#/components/schemas/ValidationError"
-            },
-            "type": "array",
-            "title": "Detail"
-          }
-        },
-        "type": "object",
-        "title": "HTTPValidationError"
-      },
-      "JobDetailSchema": {
-        "properties": {
-          "id": {
+          "platform": {
             "type": "string",
-            "format": "uuid",
-            "title": "Id"
+            "maxLength": 30,
+            "title": "Platform",
+            "description": "The social platform (e.g., linkedin, twitter)"
           },
-          "job_type": {
-            "type": "string",
-            "title": "Job Type"
-          },
-          "retries": {
+          "version": {
             "type": "integer",
-            "title": "Retries"
+            "title": "Version",
+            "default": 1
           },
-          "status": {
-            "type": "string",
-            "title": "Status"
-          },
-          "percentage": {
-            "type": "integer",
-            "title": "Percentage"
-          },
-          "error": {
+          "text": {
             "anyOf": [
               {
                 "type": "string"
@@ -610,7 +585,51 @@
                 "type": "null"
               }
             ],
-            "title": "Error"
+            "title": "Text"
+          },
+          "meta_data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta Data"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "default": true
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "content_post_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Content Post Id"
+          },
+          "job_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Job Id"
+          },
+          "previous_version_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Version Id"
           },
           "created_at": {
             "type": "string",
@@ -625,15 +644,27 @@
         },
         "type": "object",
         "required": [
+          "platform",
           "id",
-          "job_type",
-          "retries",
-          "status",
-          "percentage",
+          "content_post_id",
+          "job_id",
           "created_at",
           "updated_at"
         ],
-        "title": "JobDetailSchema"
+        "title": "GeneratedAssetResponse"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
       },
       "JobResponseSchema": {
         "properties": {
@@ -725,6 +756,103 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "VisualAssetResponse": {
+        "properties": {
+          "slide_index": {
+            "type": "integer",
+            "title": "Slide Index",
+            "description": "The order of the slide/visual"
+          },
+          "headline": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Headline"
+          },
+          "subtext": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subtext"
+          },
+          "meta_data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta Data",
+            "description": "Metadata for image prompts or layout settings"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version",
+            "default": 1
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "default": true
+          },
+          "platform": {
+            "type": "string",
+            "maxLength": 30,
+            "title": "Platform",
+            "default": "all"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "content_post_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Content Post Id"
+          },
+          "job_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Job Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "slide_index",
+          "id",
+          "content_post_id",
+          "job_id",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "VisualAssetResponse"
       }
     }
   }

@@ -11,9 +11,16 @@ import requests
 import time
 from uuid import UUID
 from typing import cast
+from app.tasks.fetch_ai_response_data import fetch_ai_response_data
+from app.tasks.save_ai_json_to_db import save_ai_json_data_to_db
+from app.services.update_job_status import update_job_status
+from app.services.update_content_status import update_content_status
 
 logger = get_task_logger(__name__)
 AI_SERVICE_URL = settings.AI_SERVICE_URL
+
+
+# def update_status()
 
 
 @celery.task(
@@ -22,108 +29,18 @@ AI_SERVICE_URL = settings.AI_SERVICE_URL
     max_retries=3,
     track_started=True,
 )
-def generate_social_post_captions(self, content_idd: str, job_idd: str):
+def generate_social_post_captions(self, job_id: str):
     db = SessionLocal()
-
-    job = None
     try:
-        content_id = UUID(content_idd)
-        job_id = UUID(job_idd)
-        content = db.query(ContentPost).filter(ContentPost.id == content_id).first()
-        job = db.query(ContentJob).filter(ContentJob.id == job_id).first()
+        jobId = UUID(job_id)
+
+        job = db.query(ContentJob).filter(ContentJob.id == jobId).first()
         if not job:
-            raise Exception("Job not found")
-        if not content:
-            raise Exception("Content not found")
-        job.status = JobStatus.STARTED
-        content.status = ContentStatus.PROCESSING
-
-        self.update_state(state=JobStatus.STARTED.value, meta={"progress": 20})
-        job.progress = 20
-        print(job.progress, "......................", flush=True)
-        db.commit()
-        payload = {
-            "title": content.title,
-            "content": content.content,
-            "ctaLink": content.ctaLink,
-            "tone": content.tone,
-            "audience": content.audience,
-            "content_goal": content.content_goal,
-            "platforms": content.platforms,
-            "language": content.language,
-        }
-        try:
-            res = requests.post(
-                f"{AI_SERVICE_URL}/api/v1/ai-service/generate-post-captions",
-                json=payload,
-                timeout=120,
-            )
-        except Exception as e:
-            raise e
-        self.update_state(state=JobStatus.STARTED.value, meta={"progress": 70})
-        job.progress = 70
-        db.commit()
-        if res.status_code != 200:
-            raise RuntimeError(f"Ai service failed : {res.status_code} {res.text}")
-        result = AIServiceResponse(**res.json())
-
-        # job relaed data
-        job.ai_provider = result.ai_provider
-        job.model_version = result.model_version
-        job.prompt_version = result.prompt_version
-        job.usage_metadata = result.usage_metadata
-
-        for asset in result.assets:
-            new_assest = GeneratedAsset(
-                content_post_id=content_id,
-                job_id=job_id,
-                platform=asset.platform,
-                text=asset.text,
-                meta_data=asset.meta_data,
-            )
-            db.add(new_assest)
-            db.commit()
-        self.update_state(state=JobStatus.STARTED.value, meta={"progress": 80})
-        job.progress = 80
-        db.commit()
-        for visual in result.visuals:
-            new_visual = VisualAsset(
-                content_post_id=content_id,
-                job_id=job_id,
-                slide_index=visual.slide_index,
-                headline=visual.headline,
-                subtext=visual.subtext,
-            )
-            db.add(new_visual)
-            db.commit()
-
-        self.update_state(state=JobStatus.STARTED.value, meta={"progress": 90})
-        job.progress = 90
-        job.status = JobStatus.SUCCESS
-        content.status = ContentStatus.GENERATED
-        db.commit()
-        self.update_state(state=JobStatus.STARTED.value, meta={"progress": 100})
-        job.progress = 100
-        db.commit()
-        return result
-    except requests.RequestException as e:
-        print("service error", ";;;;", flush=True)
-        print(e, flush=True)
-        logger.warning(f"retrying {self.request.retries+1} due to request error  : {e}")
-        if job is not None:
-            job.retries = self.request.retries + 1
-            job.status = JobStatus.RETRY
-
-            db.commit()
-        raise self.retry(exc=e)
+            raise Exception("Job not exist")
+        if job.raw_ai_response is None:
+            fetch_ai_response_data.delay(job_id)
+        if job.raw_ai_response is not None and job.status != JobStatus.SUCCESS:
+            save_ai_json_data_to_db.delay(job_id)
+        return
     except Exception as e:
-        self.update_state(state=JobStatus.FAILURE.value, meta={"progress": 10})
-
-        if job is not None:
-            job.status = JobStatus.FAILURE
-            job.error = str(e)
-
-            db.commit()
-        raise e
-    finally:
-        db.close()
+        return

@@ -7,15 +7,9 @@ import enum
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 
+from sqlalchemy.dialects.postgresql import JSONB
 
 import enum
-
-# class JobStatus(str, enum.Enum):
-#     PENDING = "PENDING"
-#     STARTED = "STARTED"
-#     RETRY = "RETRY"
-#     FAILURE = "FAILURE"
-#     SUCCESS = "SUCCESS"
 
 
 class JobStatus(str, enum.Enum):
@@ -37,6 +31,7 @@ class ContentJob(Base):
     )
     post = relationship("ContentPost", back_populates="jobs")
     created_assets = relationship("GeneratedAsset", back_populates="source_job")
+    raw_ai_response = Column(JSONB, nullable=True)
 
     job_type = Column(String(50), nullable=False)
     ai_provider = Column(String(30), nullable=True)

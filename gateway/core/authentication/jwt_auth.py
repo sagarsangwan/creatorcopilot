@@ -17,7 +17,7 @@ if not JWT_SECRET_KEY:
 class JWTAuthentication(BaseAuthentication):
     def authenticate(self, request):
         auth = request.headers.get("Authorization")
-        print(auth, flush=True)
+
         if not auth or not auth.startswith("Bearer "):
             return None
         parts = auth.split(" ")
@@ -31,9 +31,8 @@ class JWTAuthentication(BaseAuthentication):
             payload = jwt.decode(
                 token, JWT_SECRET_KEY, algorithms=["HS256"], audience="creatorcopilot"
             )
-            print(payload, flush=True)
         except exceptions.ExpiredSignatureError:
-            # print
+
             raise AuthenticationFailed("TOKEN_EXPIRED")
         except JWTError:
             raise AuthenticationFailed("INVALID_TOKEN")
@@ -41,5 +40,5 @@ class JWTAuthentication(BaseAuthentication):
             raise AuthenticationFailed("INVALID_TOKEN_PAYLOAD")
 
         user = SimpleUser(id=payload["user_id"], email=payload.get("email"))
-        print(user, flush=True)
+
         return (user, None)

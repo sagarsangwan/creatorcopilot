@@ -7,6 +7,7 @@ from .views import (
     content_post_list_create,
     get_content_detais,
     get_job_status,
+    retry_ai_generation,
 )
 
 urlpatterns = [
@@ -17,4 +18,5 @@ urlpatterns = [
     path("content/posts/", content_post_list_create),
     path("content/posts/<str:content_id>/", get_content_detais),
     path("content/job/status/<str:job_id>/", get_job_status),
+    path("content/job/<str:job_id>/", retry_ai_generation),
 ]

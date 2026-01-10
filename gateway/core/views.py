@@ -129,3 +129,15 @@ def get_job_status(request, job_id):
         timeout=10,
     )
     return Response(data=res.json(), status=res.status_code)
+
+
+@api_view(["PUT"])
+@permission_classes([IsAuthenticated])
+def retry_ai_generation(request, job_id):
+    headers = get_headers(request=request)
+    res = requests.get(
+        f"{CONTENT_BASE}/api/v1/content/job/{job_id}",
+        headers=headers,
+        timeout=10,
+    )
+    return Response(data=res.json(), status=res.status_code)

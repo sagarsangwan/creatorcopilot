@@ -5,13 +5,13 @@ from sqlalchemy.orm import Session, joinedload
 from app.schemas.content_post_schemas import (
     ContentGenerationRequest,
     ContentGenerateResponse,
-    ContentDetailResponse,
+    ContentDetailSchema,
     ContentListResponse,
 )
 
 import uuid
 from sqlalchemy import exc
-from app.schemas.content_jobs import JobStatusResponse
+from app.schemas.content_jobs import JobStatusResponse, JobRetryResponse
 from celery.result import AsyncResult
 from app.celery_app.celery import celery
 from typing import Optional
@@ -41,7 +41,6 @@ def retrive_job_status_from_db(id: str, db: Session):
     job = db.query(ContentJob).filter(ContentJob.id == id).first()
     if not job:
         raise LookupError("Job not exist")
-    print(job, "jobbbbbbbbbbbbbbbbbbb")
     return JobStatusResponse(status=JobStatus(job.status), progress=job.progress)
 
 
@@ -51,7 +50,6 @@ def job_status(
 ):
     task = AsyncResult(id=id, app=celery)
     task_meta = task.backend.get(task.backend.get_key_for_task(id))
-    print(task.info or {}, ";;;;;", flush=True)
     if task_meta is not None:
         meta = task.info or {}
         return JobStatusResponse(status=(task.state), progress=0)
@@ -91,13 +89,12 @@ def posts(
         db.refresh(newContent)
         db.refresh(new_job)
     except exc.SQLAlchemyError as e:
-        print(e, flush=True)
         db.rollback()
         raise HTTPException(status_code=500, detail="DataBase Error")
 
     except Exception as e:
         db.rollback()
-        print(e, flush=True)
+
         raise HTTPException(status_code=500, detail="something went wrong")
     generate_social_post_captions.apply_async(
         (str(newContent.id), str(new_job.id)), task_id=str(new_job.id)
@@ -128,37 +125,30 @@ def get_all_posts(
         .limit(limit if limit is not None else 100)
         .all()
     )
-    for i in content_posts:
-        print(i.__dict__, flush=True)
     return ContentListResponse(total=len(content_posts), posts=content_posts)
 
 
-@router.get("/posts/{content_id}", response_model=ContentDetailResponse)
+@router.get("/posts/{content_id}", response_model=ContentDetailSchema)
 def get_post_details(
     content_id: str,
-    job_type: str,
+    job_type: str | None = None,
     db: Session = Depends(get_db),
     user_id: str = Depends(get_current_user),
 ):
-    print(content_id, flush=True)
     content = (
         db.query(ContentPost)
+        .options(
+            joinedload(ContentPost.assets),
+            joinedload(ContentPost.visuals),
+            joinedload(ContentPost.jobs),
+        )
         .filter(ContentPost.id == content_id, ContentPost.user_id == user_id)
         .first()
     )
     if not content:
         raise HTTPException(status_code=404, detail="Content You Requested Not Found ")
-    job = (
-        db.query(ContentJob)
-        .filter(
-            ContentJob.content_post_id == content.id,
-            ContentJob.job_type == job_type,
-        )
-        .order_by(ContentJob.created_at.desc())
-        .first()
-    )
 
-    return ContentDetailResponse(content=content, job=job if job else None)
+    return content
 
 
 @router.delete("/posts/{content_id}")
@@ -183,3 +173,19 @@ def delete_post(
         return {"message": "Successfully deleted"}
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@router.put("/job/{job_id}", response_model=JobRetryResponse)
+def retry_ai_generation(
+    job_id: str,
+    job_type: str | None = None,
+    user_id: str = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    job = db.query(ContentJob).filter(ContentJob.id == job_id).first()
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not exist")
+    generate_social_post_captions.apply_async(
+        (str(job.content_post_id), str(job.id)), task_id=str(job.id)
+    )
+    return "Retry Successful Generating Content.."
