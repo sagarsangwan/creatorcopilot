@@ -31,7 +31,10 @@ def get_current_user(request: Request):
     return user_id
 
 
-def retrive_job_status_from_db(id: str, db: Session):
+@router.get("/job/status/{id}")
+def job_status(
+    id: str, db: Session = Depends(get_db), user_id: str = Depends(get_current_user)
+):
 
     try:
         id = uuid.UUID(id)
@@ -42,26 +45,6 @@ def retrive_job_status_from_db(id: str, db: Session):
     if not job:
         raise LookupError("Job not exist")
     return JobStatusResponse(status=JobStatus(job.status), progress=job.progress)
-
-
-@router.get("/job/status/{id}")
-def job_status(
-    id: str, db: Session = Depends(get_db), user_id: str = Depends(get_current_user)
-):
-    task = AsyncResult(id=id, app=celery)
-    task_meta = task.backend.get(task.backend.get_key_for_task(id))
-    if task_meta is not None:
-        meta = task.info or {}
-        return JobStatusResponse(status=(task.state), progress=0)
-    try:
-        status = retrive_job_status_from_db(id=id, db=db)
-        return status
-    except LookupError:
-        raise HTTPException(status_code=400, detail="Job Not Found")
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid Job id Format")
-    except Exception:
-        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
 @router.post("/posts", response_model=ContentGenerateResponse)
@@ -96,9 +79,9 @@ def posts(
         db.rollback()
 
         raise HTTPException(status_code=500, detail="something went wrong")
-    generate_social_post_captions.apply_async(
-        (str(newContent.id), str(new_job.id)), task_id=str(new_job.id)
-    )
+    result = generate_social_post_captions.delay(job_id=str(new_job.id))
+    print("TASK SENT:", result.id)
+
     return ContentGenerateResponse(
         content_id=str(newContent.id), status=new_job.status, job_id=str(new_job.id)
     )
@@ -175,7 +158,7 @@ def delete_post(
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
-@router.put("/job/{job_id}", response_model=JobRetryResponse)
+@router.put("/job/{job_id}/", response_model=JobRetryResponse)
 def retry_ai_generation(
     job_id: str,
     job_type: str | None = None,
@@ -185,7 +168,6 @@ def retry_ai_generation(
     job = db.query(ContentJob).filter(ContentJob.id == job_id).first()
     if not job:
         raise HTTPException(status_code=404, detail="Job not exist")
-    generate_social_post_captions.apply_async(
-        (str(job.content_post_id), str(job.id)), task_id=str(job.id)
-    )
-    return "Retry Successful Generating Content.."
+    generate_social_post_captions.delay(str(job.id))
+
+    return JobRetryResponse(message="Retry Successful Generating Content..")

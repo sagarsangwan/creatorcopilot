@@ -18,6 +18,8 @@ def update_job_status(
             job.retries = retries
         if error is not None:
             job.error = error
+        elif status == JobStatus.SUCCESS:
+            job.error = None
 
         db.commit()
 

@@ -135,8 +135,8 @@ def get_job_status(request, job_id):
 @permission_classes([IsAuthenticated])
 def retry_ai_generation(request, job_id):
     headers = get_headers(request=request)
-    res = requests.get(
-        f"{CONTENT_BASE}/api/v1/content/job/{job_id}",
+    res = requests.put(
+        f"{CONTENT_BASE}/api/v1/content/job/{job_id}/",
         headers=headers,
         timeout=10,
     )

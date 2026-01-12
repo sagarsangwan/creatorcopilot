@@ -22,6 +22,9 @@ def getblogCaptionsFromAi(blogCaptionPrompt):
         "prompt_tokens": int(response.usage_metadata.prompt_token_count),
         "candidates_tokens": int(response.usage_metadata.candidates_token_count),
         "total_tokens": (int(response.usage_metadata.total_token_count)),
+        "cached_tokens": getattr(
+            response.usage_metadata, "cached_content_token_count", 0
+        ),
     }
     updated_ai_result = {
         **parsed_ai_result,

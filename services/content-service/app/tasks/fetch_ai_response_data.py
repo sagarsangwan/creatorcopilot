@@ -58,17 +58,33 @@ def fetch_ai_response_data(self, job_id: str):
 
     except requests.RequestException as e:
         logger.warning(f"retrying {self.request.retries+1} due to request error  : {e}")
-        job.retries = self.request.retries + 1
-        job.status = JobStatus.RETRY
-        db.commit()
-        if self.request.retries >= self.max_retries:
+        current_retry = self.request.retries + 1
+        update_job_status(
+            db=db,
+            job=job,
+            status=JobStatus.RETRY,
+            retries=current_retry,
+            error=str(e),
+        )
+        if current_retry >= self.max_retries:
             mark_job_and_content_failed(db, job, content, str(e))
             raise
 
         raise self.retry(exc=e, countdown=30)
     except Exception as e:
-        mark_job_and_content_failed(db, job, content, str(e))
+        db.rollback()
+        current_retry = self.request.retries + 1
+        update_job_status(
+            db=db,
+            job=job,
+            status=JobStatus.RETRY,
+            retries=current_retry,
+            error=str(e),
+        )
+        if current_retry >= self.max_retries:
+            mark_job_and_content_failed(db, job, content, str(e))
+            raise
 
-        raise
+        raise self.retry(exc=e, countdown=35)
     finally:
         db.close()

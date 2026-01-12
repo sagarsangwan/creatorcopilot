@@ -10,6 +10,7 @@ from app.celery_app import celery
 from app.services.update_job_status import update_job_status
 from app.services.update_content_status import update_content_status
 from app.services.mark_job_and_content_failed import mark_job_and_content_failed
+from fastapi.encoders import jsonable_encoder
 
 
 def add_job_metadata(db, job, result: AIServiceResponse):
@@ -38,7 +39,7 @@ def add_assets(db, job_id, content_id, result: AIServiceResponse):
             job_id=job_id,
             platform=asset.platform,
             text=asset.text,
-            meta_data=asset.meta_data,
+            meta_data=jsonable_encoder(asset.meta_data),
         )
         db.add(new_assest)
 
@@ -81,8 +82,19 @@ def save_ai_json_data_to_db(self, job_id: str):
         db.commit()
         return
     except Exception as e:
-        if self.request.retries >= self.max_retries:
+        db.rollback()
+        current_retry = self.request.retries + 1
+        update_job_status(
+            db=db,
+            job=job,
+            status=JobStatus.RETRY,
+            retries=current_retry,
+            error=str(e),
+        )
+        if current_retry >= self.max_retries:
             mark_job_and_content_failed(db, job, content, str(e))
             raise
 
         raise self.retry(exc=e, countdown=15)
+    finally:
+        db.close()

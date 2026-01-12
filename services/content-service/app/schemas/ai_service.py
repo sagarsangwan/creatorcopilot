@@ -1,5 +1,6 @@
 from typing import List
 from pydantic import BaseModel, Field
+from typing import Optional
 
 
 class Visual(BaseModel):
@@ -9,9 +10,9 @@ class Visual(BaseModel):
 
 
 class MetaData(BaseModel):
-    hashtags: List[str]
-    first_comment: str
-    cta_text: str
+    hashtags: Optional[List[str]] = []  # Field(default_factory=list)
+    first_comment: Optional[str] = None
+    cta_text: Optional[str] = None
 
 
 class Asset(BaseModel):
@@ -24,6 +25,7 @@ class UsageMetadata(BaseModel):
     prompt_tokens: int
     candidates_tokens: int
     total_tokens: int
+    cached_tokens: int
 
 
 class AIServiceResponse(BaseModel):

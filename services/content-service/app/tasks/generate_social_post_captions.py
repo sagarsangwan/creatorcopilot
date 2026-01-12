@@ -15,6 +15,7 @@ from app.tasks.fetch_ai_response_data import fetch_ai_response_data
 from app.tasks.save_ai_json_to_db import save_ai_json_data_to_db
 from app.services.update_job_status import update_job_status
 from app.services.update_content_status import update_content_status
+from app.services.mark_job_and_content_retry import mark_job_and_content_retry
 
 logger = get_task_logger(__name__)
 AI_SERVICE_URL = settings.AI_SERVICE_URL
@@ -30,11 +31,16 @@ def generate_social_post_captions(job_id: str):
         jobId = UUID(job_id)
 
         job = db.query(ContentJob).filter(ContentJob.id == jobId).first()
+        content = (
+            db.query(ContentPost).filter(ContentPost.id == job.content_post_id).first()
+        )
         if not job:
             raise Exception("Job not exist")
         if job.raw_ai_response is None:
             fetch_ai_response_data.delay(job_id)
         elif job.raw_ai_response is not None and job.status != JobStatus.SUCCESS:
+            print("marking newwwwwwwwwwwwwwwwwwwwwwwwwwwwww", flush=True)
+            mark_job_and_content_retry(db=db, job=job, content=content, error="")
             save_ai_json_data_to_db.delay(job_id)
         return
     except Exception as e:

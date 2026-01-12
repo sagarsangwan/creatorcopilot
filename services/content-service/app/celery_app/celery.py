@@ -8,8 +8,8 @@ celery = Celery(
     backend=os.getenv(settings.CELERY_RESULT_BACKEND),
     include=[
         "app.tasks.generate_social_post_captions",
-        "content.fetch_ai_response_data",
-        "content.save_ai_json_data_to_db",
+        "app.tasks.fetch_ai_response_data",
+        "app.tasks.save_ai_json_to_db",
     ],
 )
 
