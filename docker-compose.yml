@@ -68,6 +68,15 @@ services:
       - microservice-network
     environment:
       - PYTHONUNBUFFERED=1
+  analytics-service:
+    build:
+      context: ./services/analytics-service
+      dockerfile : Dockerfile
+    ports:
+      - "8005:8005"
+    networks:
+      - microservice-network
+
   auth-service:
     build:
       context: ./services/auth-service
@@ -89,6 +98,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8004:8004"
+    env_file:
+      - ./services/analytics-service/.env
     volumes:
       - ./services/ai-service:/app 
         
