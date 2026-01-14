@@ -1,6 +1,23 @@
 
 
 services:
+  db-analytics:
+    image: mysql:8.0
+    restart: always
+    env_file:
+      - ./.env.analytics.db
+    ports:
+    - "3309:3306"
+    volumes:
+      - analytics_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-prootpass"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    
+    networks:
+      - microservice-network
   db-auth:
     image: postgres:15-alpine 
     restart: always
@@ -74,6 +91,16 @@ services:
       dockerfile : Dockerfile
     ports:
       - "8005:8005"
+    env_file:
+      - ./services/analytics-service/.env
+    environment:
+      - FLASK_DEBUG=True
+      - FLASK_APP=app.main
+      - CHOKIDAR_USEPOLLING=true 
+      - WATCHDOG_USEPOLLING=true
+    depends_on:
+      db-analytics:
+        condition: service_healthy
     networks:
       - microservice-network
 
@@ -171,3 +198,4 @@ volumes:
   auth_postgres_data:
   media_postgres_data:
   content_postgres_data:
+  analytics_mysql_data:

@@ -2,7 +2,7 @@
 .env
 .env.auth.db
 .env.media.db
-
+.env.analytics.db
 
 node_modules/
 .env
