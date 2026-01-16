@@ -130,7 +130,7 @@ services:
     ports:
       - "8004:8004"
     env_file:
-      - ./services/analytics-service/.env
+      - ./services/ai-service/.env
     volumes:
       - ./services/ai-service:/app 
         

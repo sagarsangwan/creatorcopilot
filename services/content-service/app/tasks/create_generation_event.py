@@ -10,7 +10,7 @@ logger = get_task_logger(__name__)
 @celery.task(
     name="content.create_generation_event", bind=True, max_retries=3, track_started=True
 )
-def create_generation_event(self, payload: EventBase):
+def create_generation_event(self, payload: dict):
     try:
         res = requests.post(
             f"{settings.ANALYTICS_SERVICE_URL}/api/v1/event", json=payload, timeout=30

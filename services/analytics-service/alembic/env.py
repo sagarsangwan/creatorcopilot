@@ -6,6 +6,7 @@ from sqlalchemy import pool
 from alembic import context
 from app.core.database import Base
 from app.models.generated_content_events import ContentGenerationEvent
+from app.models.daily_platform_usage import DailyPlatformUsage
 from dotenv import load_dotenv
 from app.core.config import settings
 

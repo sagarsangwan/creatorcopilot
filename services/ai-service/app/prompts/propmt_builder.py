@@ -98,7 +98,7 @@ def build_prompt(
         "instagram": INSTAGRAM_RULES,
         "facebook": FACEBOOK_RULES,
         "linkedin": LINKEDIN_RULES,
-        "x": X_RULES,
+        "twitter/x": X_RULES,
         "threads": THREADS_RULES,
     }
     platform_rules = "\n".join([PLATFORM_RULES_MAP.get(p, "") for p in platforms])

@@ -16,11 +16,9 @@ def events():
     db: Session = g.db
     if request.method == "GET":
         data = db.query(ContentGenerationEvent).all()
-        response_data = EventsListResponse(events=data, status_code=200)
-        return jsonify(response_data.model_dump()), 200
+        return jsonify({"events": [e.to_dict() for e in data]}), 200
     elif request.method == "POST":
         json_data = request.get_json()
-        print(json_data, "////////////////////////////////////////", flush=True)
         if not json_data:
             return jsonify({"message": "No data provided"}), 400
         try:

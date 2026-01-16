@@ -39,3 +39,20 @@ class ContentGenerationEvent(Base):
         default=GenerationStatus.SUCCESS,
     )
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "content_post_id": self.content_post_id,
+            "platform": self.platform,
+            "token_used": self.token_used,
+            "ai_provider": self.ai_provider,
+            "model_version": self.model_version,
+            "content_type": self.content_type,
+            "latency_ms": self.latency_ms,
+            "status": (
+                self.status.value if isinstance(self.status, enum.Enum) else self.status
+            ),
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+        }

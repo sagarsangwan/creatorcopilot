@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 
 from typing import List, Optional
+from datetime import datetime
 
 
 class EventCreateResponse(BaseModel):
@@ -34,9 +35,12 @@ class EventCreateRequest(EventBase):
 
 class EventDetails(EventBase):
     id: str
-    created_at: str
+    created_at: datetime
 
 
 class EventsListResponse(BaseModel):
     events: List[EventDetails]
     status_code: int
+
+    class Config:
+        from_attributes = True

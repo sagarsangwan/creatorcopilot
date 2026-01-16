@@ -65,11 +65,11 @@ def fetch_ai_response_data(self, job_id: str):
                 "user_id": str(content.user_id),
                 "content_post_id": str(content.id),
                 "platform": platfrom.platform,
-                "token_used": token_used_for_each_platform,
+                "token_used": int(token_used_for_each_platform),
                 "ai_provider": data.ai_provider,
                 "model_version": data.model_version,
                 "content_type": "Content",
-                "latency_ms": data.latency_ms,
+                "latency_ms": int(data.latency_ms),
                 "status": "success",
             }
             create_generation_event.delay(payload=payload_forEvent)
