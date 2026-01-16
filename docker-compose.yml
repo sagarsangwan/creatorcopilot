@@ -91,6 +91,8 @@ services:
       dockerfile : Dockerfile
     ports:
       - "8005:8005"
+    volumes:
+      - ./services/analytics-service/:app
     env_file:
       - ./services/analytics-service/.env
     environment:
@@ -103,6 +105,7 @@ services:
         condition: service_healthy
     networks:
       - microservice-network
+    
 
   auth-service:
     build:
@@ -113,9 +116,8 @@ services:
         condition: service_healthy
     ports:
       - "8001:8001" # Host port:Container port
-    # Crucial for development: Sync local code and ignore cache
     volumes:
-      - ./services/auth-service:/app # Maps your local code into the container
+      - ./services/auth-service:/app 
         
     networks:
       - microservice-network
