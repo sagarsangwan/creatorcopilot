@@ -5,11 +5,6 @@ import os
 
 load_dotenv()
 
-print("--- DOCKER ENV DEBUG ---")
-print(f"Current Dir: {os.getcwd()}")
-print(f"DB_HOST from ENV: {os.getenv('DB_HOST')}")
-print("------------------------")
-
 
 @dataclass(frozen=True)
 class Settings:

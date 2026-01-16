@@ -1,5 +1,5 @@
 from app.core.database import Base
-from sqlalchemy import Column, String, Enum, UUID, Text, Integer, TIMESTAMP, int
+from sqlalchemy import Column, String, Enum, UUID, Text, Integer, TIMESTAMP
 import uuid
 from sqlalchemy.sql import func
 import enum
@@ -19,21 +19,21 @@ class GenerationStatus(str, enum.Enum):
 
 
 class ContentGenerationEvent(Base):
-    __table_name__ = "content_generation_events"
-    id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
-    user_id = Column(String, nullable=False)
-    content_post_id = Column(String, nullable=True)
-    platform = Column(String, nullable=False)
-    token_used = Column(int)
-    ai_provider = Column(String)
-    model_version = Column(String)
-    content_type = Column(String)
+    __tablename__ = "content_generation_events"
+    id = Column(String(36), default=lambda: str(uuid.uuid4()), primary_key=True)
+    user_id = Column(String(255), nullable=False)
+    content_post_id = Column(String(255), nullable=True)
+    platform = Column(String(255), nullable=False)
+    token_used = Column(Integer)
+    ai_provider = Column(String(255))
+    model_version = Column(String(255))
+    content_type = Column(String(255))
     latency_ms = Column(Integer, default=0)
     status = Column(
         Enum(
             GenerationStatus,
             name="content_generation_status",
-            native_enum=True,
+            native_enum=False,
             create_type=False,
         ),
         default=GenerationStatus.SUCCESS,

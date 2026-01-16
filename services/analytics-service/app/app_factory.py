@@ -3,6 +3,7 @@ from app.core.config import settings
 from app.core.logging import set_up_logging
 from app.api.v1.health import health_bp
 from app.core.database import SessionLocal
+from app.api.v1.events import events_bp
 
 
 def create_app() -> Flask:
@@ -26,3 +27,4 @@ def create_app() -> Flask:
 
 def register_blueprints(app: Flask):
     app.register_blueprint(health_bp)
+    app.register_blueprint(events_bp)

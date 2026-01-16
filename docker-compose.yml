@@ -92,7 +92,7 @@ services:
     ports:
       - "8005:8005"
     volumes:
-      - ./services/analytics-service/:app
+      - ./services/analytics-service/:/app
     env_file:
       - ./services/analytics-service/.env
     environment:
