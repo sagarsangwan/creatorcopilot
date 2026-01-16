@@ -1,105 +1,95 @@
-```md
+---
+
 # CreatorCopilot
 
-CreatorCopilot helps creators generate social media captions and hashtags from blogs or text for platforms like LinkedIn, Instagram, and X.
+I built **CreatorCopilot** to solve a simple problem: turning long-form blogs into social media posts shouldn't be a manual chore. You paste your text, and the app handles the breakdown into captions and hashtags for platforms like LinkedIn, X, and Instagram.
 
-## What it does
+The goal wasn't just to make a tool, but to build it using a **microservice architecture** that reflects how real-world apps are structured.
 
-- Google login
-- Paste blog or text
-- Generate captions and hashtags using AI
-- Track content and background jobs
-- Simple dashboard
+## What it actually does
 
-## Tech stack
+* **Sign in:** Jump in quickly with Google Auth.
+* **Convert:** Paste a blog link or raw text and get platform-ready captions.
+* **Track:** Manage your content "jobs" and see what’s ready to post.
+* **Scale:** Since it's built with microservices, each part (AI, Auth, Analytics) runs independently.
 
-- Frontend: Next.js, Tailwind CSS, shadcn/ui
-- API Gateway: Django, Django REST Framework
-- Services: FastAPI
-- Database: PostgreSQL
-- Background jobs: Celery, Redis
-- Docker, Docker Compose
+---
 
-## Folder structure
+## The Tech Behind It
 
-```
+I chose this stack to balance speed with a "production-grade" feel:
 
+* **Frontend:** Next.js (App Router), Tailwind, and shadcn/ui.
+* **The Gateway:** Django + DRF (serves as the main entry point).
+* **Microservices:** FastAPI/Flask (fast, lightweight, and great for AI/Auth/Analytics).
+* **Data:** PostgreSQL (each service has its own dedicated database).
+* **Background Jobs:** Celery & Redis (to keep the AI generation from freezing the UI).
+* **DevOps:** Docker & Docker Compose for easy local setup.
+
+---
+
+## Project Structure
+
+The project is organized so you can work on one service without breaking the others:
+
+```text
 creatorcopilot/
-├── gateway/
+├── gateway/           # The "front door" for all API requests
 ├── services/
-│   ├── auth-service/
-│   ├── content-service/
-│   ├── ai-service/
-│   └── analytics-service/
-├── frontend/
-├── docker-compose.yml
-├── .env.sample
-└── README.md
+│   ├── auth-service/      # Handles users & Google login
+│   ├── content-service/   # Manages your posts and drafts
+│   ├── ai-service/        # The logic for generating captions
+│   └── analytics-service/ # Tracks how the app is being used
+├── frontend/          # Next.js dashboard
+└── docker-compose.yml # Spins up the whole ecosystem
 
 ```
 
-## Environment variables
+---
 
-All environment variables are defined in `.env.sample`.
+## Getting Started
 
-Copy it and create your own `.env` files before running the project.
+### 1. Environment Variables
 
-Each service also has its own `.env.sample`.
+I've included `.env.sample` files in the root and inside each service folder. Copy those to a real `.env` file and add your own keys (like Google Auth or AI API keys).
 
-## Run backend (Docker)
+### 2. Spin up the Backend (Docker)
 
-```
+Make sure you have Docker installed, then run:
 
+```bash
 docker compose up --build
 
 ```
 
-To stop:
+This starts the gateway, all 4 services, the databases, and the background workers.
 
-```
+### 3. Run the Frontend
 
-docker compose down
+In a new terminal:
 
-```
-
-## Run frontend
-
-```
-
+```bash
 cd frontend
 npm install
 npm run dev
 
 ```
 
-Frontend runs on:
+Head over to `http://localhost:3000` to see it in action.
 
-```
+---
 
-[http://localhost:3000](http://localhost:3000)
+## Why microservices?
 
-```
+I didn't want a "monolith." Using microservices because Real-world practice It mimics how modern tech companies actually ship software.
 
-## Services
+## What's Next?
 
-### API Gateway
-- Entry point
-- Handles auth
-- Routes requests
+* [ ] Adding better error handling (retries for failed AI jobs).
+* [ ] Adding a "History" edit view to edit generations.
+* [ ] Centralized logging to see what's happening across all services at once.
+* [ ] Complete analyticl service for admin use like what is count for total ai generation today or like how many posts are generated for insta/linkdin/X.
 
-### Auth Service
-- Google login
-- Token validation
+**Built by Sagar Sangwan**
 
-### Content Service
-- Stores content
-- Manages jobs
-
-### AI Service
-- Generates captions and hashtags
-
-### Analytics Service
-- Tracks usage
-```
-
-If **this** still breaks in preview, then your editor is **not rendering Markdown at all** — GitHub will render this correctly.
+---
