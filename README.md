@@ -1,244 +1,105 @@
-
+```md
 # CreatorCopilot
 
-CreatorCopilot is a backend-first platform designed to support creator workflows such as authentication, media handling, and AI-powered processing.  
-The system follows a **microservices architecture**, where each service is isolated, independently deployable, and owns its own database.
+CreatorCopilot helps creators generate social media captions and hashtags from blogs or text for platforms like LinkedIn, Instagram, and X.
 
-The project focuses on **clean backend design, service isolation, and scalable architecture**, rather than frontend-heavy logic.
+## What it does
 
----
+- Google login
+- Paste blog or text
+- Generate captions and hashtags using AI
+- Track content and background jobs
+- Simple dashboard
 
-## Architecture Overview
+## Tech stack
 
-The system is composed of multiple backend services communicating **only via REST APIs**.
+- Frontend: Next.js, Tailwind CSS, shadcn/ui
+- API Gateway: Django, Django REST Framework
+- Services: FastAPI
+- Database: PostgreSQL
+- Background jobs: Celery, Redis
+- Docker, Docker Compose
 
-```
-
-Next.js Frontend (Local)
-|
-v
-Django API Gateway
-|
-+--> Auth Service (FastAPI)  ---> Auth DB (PostgreSQL)
-|
-+--> Media Service (FastAPI) ---> Media DB (PostgreSQL)
-
-```
-
-### Architectural Principles
-- Single responsibility per service
-- No shared databases or tables
-- No shared code between services
-- JWT-based authentication with local verification
-- Fault isolation between services
-
----
-
-## Services
-
-### Frontend (Next.js)
-- Runs outside Docker using `npm run dev`
-- Communicates only with the Django Gateway
-- No direct access to internal microservices
-
----
-
-### Gateway (Django)
-Acts as the API Gateway for the system.
-
-Responsibilities:
-- Entry point for all client requests
-- Request routing to internal services
-- Authentication token forwarding
-- Shared middleware and validation
-
-The gateway does not contain domain-specific business logic.
-
----
-
-### Auth Service (FastAPI)
-Dedicated authentication microservice.
-
-Responsibilities:
-- User authentication
-- JWT token issuance
-- Token validation
-- Auth-related APIs only
-
-Design decisions:
-- Owns its own PostgreSQL database
-- Other services verify JWTs locally
-- No synchronous dependency on Auth during request handling
-
----
-
-### Media Service (FastAPI)
-Handles media-related backend functionality.
-
-Responsibilities:
-- Media metadata handling
-- Upload workflows
-- Media-related APIs
-
-Design decisions:
-- Owns its own PostgreSQL database
-- Independent of Auth and Gateway availability
-- Can be scaled or modified without impacting authentication
-
----
-
-## Technology Stack
-
-**Backend**
-- Python
-- Django (API Gateway)
-- FastAPI (Microservices)
-
-**Databases**
-- PostgreSQL (one database per service)
-
-**Authentication**
-- JWT (stateless, locally verified)
-
-**Infrastructure**
-- Docker
-- Docker Compose
-- Docker bridge networking
-
-**Frontend**
-- Next.js (runs outside Docker)
-
----
-
-## Repository Structure
+## Folder structure
 
 ```
 
-.
-├── frontend/                 # Next.js frontend (local dev)
-│   └── .env
-├── gateway/                  # Django API Gateway
-│   ├── Dockerfile
-│   └── .env
+creatorcopilot/
+├── gateway/
 ├── services/
-│   ├── auth-service/         # FastAPI Auth Service
-│   │   ├── Dockerfile
-│   │   └── .env
-│   └── media-service/        # FastAPI Media Service
-│       ├── Dockerfile
-│       └── .env
+│   ├── auth-service/
+│   ├── content-service/
+│   ├── ai-service/
+│   └── analytics-service/
+├── frontend/
 ├── docker-compose.yml
-├── .env.sample               # Environment variable templates
+├── .env.sample
 └── README.md
 
-````
+```
 
----
+## Environment variables
 
-## Environment Configuration
+All environment variables are defined in `.env.sample`.
 
-Each component uses its own `.env` file.
+Copy it and create your own `.env` files before running the project.
 
-Required `.env` locations:
-- `frontend/.env`
-- `gateway/.env`
-- `services/auth-service/.env`
-- `services/media-service/.env`
+Each service also has its own `.env.sample`.
 
-A `.env.sample` file is provided as a reference and should be copied and updated per service.
+## Run backend (Docker)
 
-Each `.env` typically contains:
-- Database credentials
-- JWT secrets
-- Service-specific configuration
+```
 
----
-
-## Running the Backend (Docker)
-
-From the project root:
-
-```bash
 docker compose up --build
-````
 
-This will start:
+```
 
-* Auth PostgreSQL database
-* Media PostgreSQL database
-* Django Gateway
-* Auth Service
-* Media Service
+To stop:
 
-Health checks ensure databases are ready before services start.
+```
 
----
+docker compose down
 
-## Running the Frontend
+```
 
-Frontend runs outside Docker for faster development.
+## Run frontend
 
-```bash
+```
+
 cd frontend
 npm install
 npm run dev
-```
-
-The frontend communicates with the backend only through the Django Gateway.
-
----
-
-## Docker Compose Highlights
-
-* Each service runs in its own container
-* Separate PostgreSQL volumes per service
-* Shared Docker bridge network for inter-service communication
-* Health checks ensure correct startup order
-
----
-
-## Architectural Guarantees
-
-* Services communicate only via APIs
-* No cross-database joins
-* No shared tables
-* Services can be stopped independently
-* Auth service remains functional even if other services fail
-
----
-
-## Design Trade-offs
-
-* Increased local development complexity compared to a monolith
-* Improved scalability, maintainability, and fault isolation
-* Clear path to independent deployment per service
-
-These trade-offs were chosen intentionally to reflect real-world backend systems.
-
----
-
-## Status
-
-🚧 **Ongoing Development**
-
-Planned improvements:
-
-* Additional domain services
-* Async background processing
-* Deployment automation
-* Improved logging and observability
-
----
-
-## Purpose
-
-This project demonstrates:
-
-* A real microservices backend (not a modular monolith)
-* Practical backend engineering decisions
-* Clean separation of concerns
-* Production-oriented system design
 
 ```
 
+Frontend runs on:
 
+```
+
+[http://localhost:3000](http://localhost:3000)
+
+```
+
+## Services
+
+### API Gateway
+- Entry point
+- Handles auth
+- Routes requests
+
+### Auth Service
+- Google login
+- Token validation
+
+### Content Service
+- Stores content
+- Manages jobs
+
+### AI Service
+- Generates captions and hashtags
+
+### Analytics Service
+- Tracks usage
+```
+
+If **this** still breaks in preview, then your editor is **not rendering Markdown at all** — GitHub will render this correctly.
