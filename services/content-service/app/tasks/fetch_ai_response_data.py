@@ -1,6 +1,6 @@
 from app.core.config import settings
 from celery.utils.log import get_task_logger
-
+from app.tasks.create_generation_event import create_generation_event
 from app.celery_app import celery
 from app.core.database import SessionLocal
 from app.models.jobs import ContentJob, JobStatus
@@ -12,6 +12,7 @@ from app.schemas.ai_service import AIServiceResponse
 from app.services.update_job_status import update_job_status
 from app.services.update_content_status import update_content_status
 from app.services.mark_job_and_content_failed import mark_job_and_content_failed
+from app.schemas.analytics_service import EventBase
 
 AI_SERVICE_URL = settings.AI_SERVICE_URL
 logger = get_task_logger(__name__)
@@ -55,6 +56,23 @@ def fetch_ai_response_data(self, job_id: str):
         job.raw_ai_response = res.json()
         db.commit()
         save_ai_json_data_to_db.delay(job_id)
+        data = AIServiceResponse(**res.json())
+        token_used_for_each_platform = data.usage_metadata.total_tokens / len(
+            data.assets
+        )
+        for platfrom in data.assets:
+            payload_forEvent = {
+                "user_id": str(content.user_id),
+                "content_post_id": str(content.id),
+                "platform": platfrom.platform,
+                "token_used": token_used_for_each_platform,
+                "ai_provider": data.ai_provider,
+                "model_version": data.model_version,
+                "content_type": "Content",
+                "latency_ms": data.latency_ms,
+                "status": "success",
+            }
+            create_generation_event.delay(payload=payload_forEvent)
 
     except requests.RequestException as e:
         logger.warning(f"retrying {self.request.retries+1} due to request error  : {e}")

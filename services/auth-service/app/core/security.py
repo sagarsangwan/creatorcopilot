@@ -65,7 +65,10 @@ def decode_google_id_token_secure(id_token_str: str) -> dict:
         # 3. Checking that the 'aud' claim matches our client ID.
         # 4. Checking the 'exp' (expiry) claim.
         id_info = id_token.verify_oauth2_token(
-            id_token_str, google_request, settings.GOOGLE_CLIENT_ID
+            id_token_str,
+            google_request,
+            settings.GOOGLE_CLIENT_ID,
+            clock_skew_in_seconds=30,
         )
 
         # The 'iss' (issuer) claim must be one of the following:

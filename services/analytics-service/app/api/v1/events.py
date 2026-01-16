@@ -20,13 +20,18 @@ def events():
         return jsonify(response_data.model_dump()), 200
     elif request.method == "POST":
         json_data = request.get_json()
+        print(json_data, "////////////////////////////////////////", flush=True)
         if not json_data:
             return jsonify({"message": "No data provided"}), 400
         try:
             event = EventCreateRequest(**request.get_json())
+            new_event = ContentGenerationEvent(**event.model_dump())
             print(event, flush=True)
-
-            return jsonify({"message": "hi from event index"}), 201
+            db.add(new_event)
+            db.commit()
+            db.refresh(new_event)
+            response = EventCreateResponse(message="Event Created", status_code=201)
+            return jsonify(response.model_dump()), 201
 
         except ValidationError as e:
             return jsonify({"error": "Invalid Data Format", "Error": e.errors()}), 422

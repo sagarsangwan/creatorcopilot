@@ -39,7 +39,6 @@ def generate_social_post_captions(job_id: str):
         if job.raw_ai_response is None:
             fetch_ai_response_data.delay(job_id)
         elif job.raw_ai_response is not None and job.status != JobStatus.SUCCESS:
-            print("marking newwwwwwwwwwwwwwwwwwwwwwwwwwwwww", flush=True)
             mark_job_and_content_retry(db=db, job=job, content=content, error="")
             save_ai_json_data_to_db.delay(job_id)
         return

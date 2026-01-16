@@ -11,6 +11,7 @@ from app.services.update_job_status import update_job_status
 from app.services.update_content_status import update_content_status
 from app.services.mark_job_and_content_failed import mark_job_and_content_failed
 from fastapi.encoders import jsonable_encoder
+from app.tasks import create_generation_event
 
 
 def add_job_metadata(db, job, result: AIServiceResponse):

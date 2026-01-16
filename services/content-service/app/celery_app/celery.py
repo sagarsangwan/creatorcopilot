@@ -10,6 +10,7 @@ celery = Celery(
         "app.tasks.generate_social_post_captions",
         "app.tasks.fetch_ai_response_data",
         "app.tasks.save_ai_json_to_db",
+        "app.tasks.create_generation_event",
     ],
 )
 

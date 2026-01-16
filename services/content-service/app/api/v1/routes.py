@@ -80,7 +80,6 @@ def posts(
 
         raise HTTPException(status_code=500, detail="something went wrong")
     result = generate_social_post_captions.delay(job_id=str(new_job.id))
-    print("TASK SENT:", result.id)
 
     return ContentGenerateResponse(
         content_id=str(newContent.id), status=new_job.status, job_id=str(new_job.id)

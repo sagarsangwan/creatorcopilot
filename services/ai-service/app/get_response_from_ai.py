@@ -17,8 +17,6 @@ def getblogCaptionsFromAi(blogCaptionPrompt):
     latency_ms = int((end_time - start_time) * 1000)
 
     print(response.usage_metadata, flush=True)
-    print("??????????????????????????", flush=True)
-    print(response)
     ai_result = response.text
     ai_result = ai_result.replace("```json", "").replace("```", "").strip()
     ai_result = ai_result.replace("\u00a0", " ")

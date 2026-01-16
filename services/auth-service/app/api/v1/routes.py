@@ -31,7 +31,7 @@ def get_or_create_user(
     last_name: str | None,
     image_url: str | None,
     db: Session,
-    emailVerified: str,
+    email_verified: str,
 ) -> DBUser:
     dbuser = db.query(DBUser).filter(DBUser.email == email).first()
 
@@ -51,13 +51,12 @@ def get_or_create_user(
 async def google_login(request: GoogleLoginRequest, db: Session = Depends(get_db)):
     try:
         google_payload = decode_google_id_token_secure(request.token)
-        print(google_payload, "/////////", flush=True)
         email = google_payload.get("email")
         first_name = google_payload.get("first_name")
         last_name = google_payload.get("last_name")
         picture = google_payload.get("picture")
         full_name = google_payload.get("name")
-        emailVerified = google_payload.get("email_verified")
+        email_verified = google_payload.get("email_verified")
         if not email:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -69,21 +68,20 @@ async def google_login(request: GoogleLoginRequest, db: Session = Depends(get_db
             last_name=last_name,
             image_url=picture,
             db=db,
-            emailVerified=emailVerified,
+            email_verified=email_verified,
         )
         token_data = {"user_id": str(dbuser.id), "email": dbuser.email}
         access_token = create_access_token(token_data)
         refresh_token = create_refresh_token(token_data)
         display_name = full_name or f"{dbuser.first_name} {dbuser.last_name}"
-        print(display_name, flush=True)
+
         user_response = UserResponse(
             id=str(dbuser.id),
             email=dbuser.email,
             name=display_name,
             picture=dbuser.image,
-            emailVerified=str(dbuser.emailVerified),
+            emailVerified=str(dbuser.email_verified),
         )
-        print(user_response, "responseuser", flush=True)
         return TokenResponse(
             user=user_response, access=access_token, refresh=refresh_token
         )
