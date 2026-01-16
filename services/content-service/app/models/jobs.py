@@ -43,6 +43,7 @@ class ContentJob(Base):
         default=JobStatus.PENDING,
         nullable=False,
     )
+    latency_ms = Column(Integer, default=0)
     progress = Column(Integer, default=0)
     retries = Column(Integer, default=0)
     error = Column(Text)

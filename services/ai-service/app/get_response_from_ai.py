@@ -2,6 +2,7 @@ import google.generativeai as genai
 import os
 from app.core.config import settings
 import json
+import time
 
 # from app.prompts.propmt_builder import build_prompt
 
@@ -9,7 +10,11 @@ import json
 def getblogCaptionsFromAi(blogCaptionPrompt):
     genai.configure(api_key=settings.GEMENI_API_KEY)
     model = genai.GenerativeModel("gemini-2.5-flash")
+    start_time = time.perf_counter()
+
     response = model.generate_content(blogCaptionPrompt)
+    end_time = time.perf_counter()
+    latency_ms = int((end_time - start_time) * 1000)
 
     print(response.usage_metadata, flush=True)
     print("??????????????????????????", flush=True)
@@ -29,6 +34,7 @@ def getblogCaptionsFromAi(blogCaptionPrompt):
     updated_ai_result = {
         **parsed_ai_result,
         "ai_provider": "gemini",
+        "latency_ms": latency_ms,
         "prompt_version": "v1",
         "model_version": response.model_version,
         "usage_metadata": usage_data,

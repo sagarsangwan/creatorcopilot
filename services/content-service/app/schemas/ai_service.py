@@ -35,3 +35,4 @@ class AIServiceResponse(BaseModel):
     prompt_version: str
     model_version: str
     usage_metadata: UsageMetadata
+    latency_ms: int

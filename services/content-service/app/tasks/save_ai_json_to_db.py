@@ -18,6 +18,7 @@ def add_job_metadata(db, job, result: AIServiceResponse):
     job.model_version = result.model_version
     job.prompt_version = result.prompt_version
     job.usage_metadata = result.usage_metadata.model_dump()
+    job.latency_ms = result.latency_ms
 
 
 def add_visuals(db, job_id, content_id, result: AIServiceResponse):
