@@ -14,8 +14,6 @@ def daily_usage():
     date_str = request.args.get("date")
     date_obj = datetime.datetime.strptime(date_str, "%d-%m-%Y").date()
     if request.method == "GET":
-        print(date_obj, flush=True)
-        datas = db.query(DailyPlatformUsage).all()
         data = (
             db.query(DailyPlatformUsage)
             .filter(DailyPlatformUsage.date == date_obj)

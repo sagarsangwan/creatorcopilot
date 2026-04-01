@@ -73,16 +73,11 @@ def group_today_events():
                 total_token_used=0,
                 total_latency_ms=0,
             )
-            all_dates = db.query(
-                func.distinct(cast(ContentGenerationEvent.created_at, Date))
-            ).all()
-            print(f"Dates available in DB: {all_dates}", flush=True)
             events = (
                 db.query(ContentGenerationEvent)
                 .filter(cast(ContentGenerationEvent.created_at, Date) == date_obj)
                 .all()
             )
-            print(events, "/////////", flush=True)
             for event in events:
                 if event.platform == "LinkedIn":
                     LinkedIn.total_post_generated += 1
